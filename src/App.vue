@@ -3,11 +3,22 @@
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <router-link :to="{name: 'BungieAuthCallback'}">Auth</router-link>
+      <router-link :to="{name: 'BungieAuth'}">Auth</router-link> | 
+            <router-link :to="{name: 'CharacterSelect'}">Character Select</router-link>
+
     </div>
+
     <router-view/>
   </div>
 </template>
+
+<script>
+export default {
+  created() {
+    localStorage.setItem('x-api-key','')
+  }
+}
+</script>
 
 <style lang="scss">
 #app {

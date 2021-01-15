@@ -23,7 +23,18 @@ const routes = [
     name: 'BungieAuthCallback',
     props: route => ({ authCode: route.query.code }),
     component: () => import(/* webpackChunkName: "auth" */ '../components/Auth.vue')
+  },
+  {
+    path: '/auth/bungie',
+    name: 'BungieAuth',
+    component: () => import(/* webpackChunkName: "auth" */ '../components/Auth.vue')
+  },
+  {
+    path: '/character/select',
+    name: 'CharacterSelect',
+    component: () => import(/* webpackChunkName: "character" */ '../views/CharacterSelect.vue')
   }
+  
 ]
 
 const router = new VueRouter({
