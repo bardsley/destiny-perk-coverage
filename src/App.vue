@@ -15,7 +15,11 @@
 <script>
 export default {
   created() {
-    localStorage.setItem('x-api-key','')
+    if(window.location.host == "destiny-perk-coverage.web.app") { 
+      localStorage.setItem('x-api-key','1c57e1390a134c1492de01238975680e')
+    } else {
+      localStorage.setItem('x-api-key','742c14f071164cef9bb681b545c3e7be')
+    }
   }
 }
 </script>
@@ -25,7 +29,6 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
