@@ -87,40 +87,10 @@ export default {
     )
     console.log(downloadedEquipment)
     this.equipment = downloadedEquipment
-    // getMembership().then((membership) => {
-    //     this.membership = membership
-    //     this.membershipId = this.membership.destinyMemberships[0].membershipId
-    //     this.membershipType = this.membership.destinyMemberships[0].membershipType
-    // }).then(() => {
-    //     getCharacters(this.membershipType,this.membershipId).then((characters) => {
-    //         this.characters = characters.data
-    //     }).then(() => {
-    //         let characterId = Object.keys(this.characters)[0]
-    //         getCharacterItems(this.membershipType,this.membershipId,characterId).then(async (response) =>{
-    //             let tempEquipment = response.equipment.data.items
-    //             console.log(tempEquipment)
-    //             this.equipment = await Promise.all(
-    //                 tempEquipment.map(async (item) => {
-    //                    await getItemDefinition(item.itemhash)
-    //                 })
-    //             )
-    //         })
-
-    //     })
-    // })
   },
   methods: {},
 };
 
-// let characterResponse = await fetch('http://swapi.co/api/people/2/')
-// let characterResponseJson = await characterResponse.json()
-// let films = await Promise.all(
-//   characterResponseJson.films.map(async filmUrl => {
-//     let filmResponse = await fetch(filmUrl)
-//     return filmResponse.json()
-//   })
-// )
-// console.log(films)
 </script>
 
 <style lang="scss" scoped>

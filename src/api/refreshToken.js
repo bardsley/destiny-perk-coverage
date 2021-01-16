@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const storeToken= async (token) => {
+const storeToken = (token) => {
     const parsedToken = JSON.stringify(token);
     const expiry = new Date().getTime() + (token.expires_in * 1000)
     // console.debug('Storing Token',token, parsedToken,"Expiry",expiry)
@@ -8,13 +8,12 @@ const storeToken= async (token) => {
     localStorage.setItem('token_expires',expiry)
     
 }
-const retrieveToken = async () => {
+const retrieveToken = () => {
     let return_token = null
     if (localStorage.getItem('token')) {
         try {
             return_token = JSON.parse(localStorage.getItem('token'));
         } catch(e) {
-            console.error("Token Broken",e)
             localStorage.removeItem('token');
         }
     } 
@@ -22,7 +21,7 @@ const retrieveToken = async () => {
 }
 
 const tokenExpired = () => {
-    const tokenExpiry = parseInt(localStorage.getItem('token_expires'))
+    const tokenExpiry = parseInt(localStorage.getItem('token_expires')) || 0
     return (tokenExpiry < new Date().getTime())
 }
 
