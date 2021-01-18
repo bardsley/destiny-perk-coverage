@@ -2,6 +2,7 @@
   <div class="character-select">
     <h1>Select a character</h1>
     <div v-for="(char, name) in characters" v-bind:key="name"
+      @click="char.inventory ? char.inventory = false : characterEquipment(char.characterId)"
       :style="'background-color: rgb(' + char.emblemColor.red + ',' + char.emblemColor.green + ',' + char.emblemColor.blue + ',0.2);'">
       <div class="character" :style="'background-image: url(\'//bungie.net' + char.emblemBackgroundPath + '\');'">
         <div class="contents">
@@ -9,7 +10,7 @@
           <p>Last Played: {{ $dateStr(Date.parse(char.dateLastPlayed)) }}</p>
         </div>
       </div>
-      <div class="inventory">
+      <div v-if="char.inventory" class="inventory">
         <h2>Equipped</h2>
         <div class="item" v-for="(item,key) in char.inventory" v-bind:key="key">
           <img v-if="item.displayProperties.hasIcon" :src="'//bungie.net'+item.displayProperties.icon"/><br/>
@@ -55,15 +56,15 @@ export default {
   },
   async created() {
     setUpCategories().then((cats)=>{this.categories = cats });
-    let vm = this
+    // let vm = this
     this.membership = await getMembership();
     this.membershipId = this.membership.destinyMemberships[0].membershipId;
     this.membershipType = this.membership.destinyMemberships[0].membershipType;
     this.characters = await getCharacters(this.membershipType,this.membershipId)
-    Object.keys(this.characters).forEach( async (characterId) => { 
-      let inventory = await this.characterEquipment(characterId)
-      vm.$set(this.characters[characterId],'inventory',inventory)
-    })
+    // Object.keys(this.characters).forEach( async (characterId) => { 
+    //   let inventory = await this.characterEquipment(characterId)
+    //   vm.$set(this.characters[characterId],'inventory',inventory)
+    // })
   },
   methods: {
     async characterEquipment(characterId) {
@@ -77,8 +78,9 @@ export default {
           return itemDef
         })
       )
-      console.log(downloadedEquipment)
-      return downloadedEquipment
+      // console.log(downloadedEquipment)
+      // return downloadedEquipment
+      this.$set(this.characters[characterId],'inventory',downloadedEquipment)
     },
     
   },
@@ -103,7 +105,7 @@ export default {
       position: absolute;
       top: 0;
       right: 0;
-      // width: 40%;
+      min-width: 30%;
       height: 100%;
       color: #fff;
       background: rgba(0,0,0,0.5);
