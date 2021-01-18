@@ -5,6 +5,9 @@ import store from './store'
 
 Vue.config.productionTip = false
 
+import dateHelper from "@/helpers/dateHelper";
+Vue.use(dateHelper);
+
 new Vue({
   router,
   store,

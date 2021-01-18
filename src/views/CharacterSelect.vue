@@ -5,15 +5,20 @@
       :style="'background-color: rgb(' + char.emblemColor.red + ',' + char.emblemColor.green + ',' + char.emblemColor.blue + ',0.2);'">
       <div class="character" :style="'background-image: url(\'//bungie.net' + char.emblemBackgroundPath + '\');'">
         <div class="contents">
-          {{ char.light }}
+          <h2>{{ char.light }}</h2>
+          <p>Last Played: {{ $dateStr(Date.parse(char.dateLastPlayed)) }}</p>
         </div>
       </div>
       <div class="inventory">
+        <h2>Equipped</h2>
         <div class="item" v-for="(item,key) in char.inventory" v-bind:key="key">
           <img v-if="item.displayProperties.hasIcon" :src="'//bungie.net'+item.displayProperties.icon"/><br/>
           <div class="details">
             <h2>{{ item.displayProperties.name }}</h2>
-            <pre>{{ item.itemCategoryHashes }}</pre>
+            <span v-for="(hashId) in item.itemCategoryHashes" :key="hashId">
+              {{categories[hashId].displayProperties.name || "n/a"}},
+            </span>
+            
           </div>
         </div>
       </div>
@@ -36,7 +41,7 @@ import {
   getMembership,
   getCharacterItems,
 } from "@/api/getCharacters";
-import { getItemDefinition } from "@/api/manifest";
+import { getItemDefinition,setUpCategories } from "@/api/manifest";
 
 export default {
   data() {
@@ -45,9 +50,11 @@ export default {
       membershipId: null,
       membershipType: null,
       characters: {},
+      categories:{},
     };
   },
   async created() {
+    setUpCategories().then((cats)=>{this.categories = cats });
     let vm = this
     this.membership = await getMembership();
     this.membershipId = this.membership.destinyMemberships[0].membershipId;
@@ -61,7 +68,9 @@ export default {
   methods: {
     async characterEquipment(characterId) {
       let characterItems = await getCharacterItems(this.membershipType,this.membershipId,characterId)
-      let tempEquipment = characterItems.equipment.data.items
+      let tempEquipped = characterItems.equipment.data.items
+      let tempOnCharacter = characterItems.inventory.data.items
+      let tempEquipment = Object.assign(tempEquipped,tempOnCharacter)
       let downloadedEquipment = await Promise.all(
         tempEquipment.map(async (item) => {
           let itemDef = await getItemDefinition(item.itemHash)
@@ -71,38 +80,67 @@ export default {
       console.log(downloadedEquipment)
       return downloadedEquipment
     },
-    async loadCategories() {
-      
-    }
+    
   },
 };
 
 </script>
 
 <style lang="scss" scoped>
-.character-select .inventory {
-  display:flex;
-  flex-wrap: wrap;
-}
-.character-select .inventory .item { width: 50%; display: flex;}
-.character-select .inventory .item img { flex-grow: 2; max-width:100px; max-height: 100px;}
-.character-select .inventory .item .details { flex-grow: 2; margin-left: 1em;}
-.character-select .character {
-  width: 100%;
-  padding-top: 20%;
-  background-size: 100%;
-  height: 0;
-  overflow: hidden;
-  background-color: white;
-  position: relative;
-}
-.character-select .character .contents {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  color: #fff;
-  padding: 1em;
+
+.character-select {
+
+  .character {
+    width: 100%;
+    padding-top: 20%;
+    background-size: 100%;
+    height: 0;
+    overflow: hidden;
+    background-color: white;
+    position: relative;
+
+    .contents {
+      position: absolute;
+      top: 0;
+      right: 0;
+      // width: 40%;
+      height: 100%;
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      padding: 1em 1.5em 1em 2em ;
+      text-align: right;
+
+      h2 {
+        font-size: 3em;
+        padding:0;
+        margin:0;
+        text-align: right;
+      }
+      p { margin:0;}
+    }
+
+  }
+
+  .inventory {
+    display:flex;
+    flex-wrap: wrap;
+
+    > h2 {
+      width: 100%; font-size: 2em; margin:0; padding: 0.25em 0 0.25em 0.5em; color: #fff; background: #333;
+      border-bottom: solid var(--item-border-width) #fff;
+    }
+
+    .item { 
+      width: 50%; display: flex; 
+      border-bottom: solid var(--item-border-width) #fff; border-right: solid var(--item-border-width) #fff;
+
+      img { flex-grow: 2; max-width:48px; max-height: 48px;}
+      .details { 
+        flex-grow: 2; margin-left: 1em;
+        h2 { margin: 0 ; }
+      }
+
+    }
+  }
 }
 </style>

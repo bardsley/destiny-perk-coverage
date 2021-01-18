@@ -13,23 +13,43 @@
 </template>
 
 <script>
+// import {getCategories} from '@/api/manifest'
+
 export default {
+  data() {
+    return {
+      categories: {}
+    }
+  },
   created() {
     if(window.location.host == "destiny-perk-coverage.web.app") { 
       localStorage.setItem('x-api-key','1c57e1390a134c1492de01238975680e')
     } else {
       localStorage.setItem('x-api-key','742c14f071164cef9bb681b545c3e7be')
     }
+  },
+  methods: {
+    
   }
 }
 </script>
 
 <style lang="scss">
+:root {
+  // Widths
+  --item-border-width: 3px;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+
+  box-sizing: border-box;
+  * {
+    box-sizing: border-box;
+  }
 }
 
 #nav {
