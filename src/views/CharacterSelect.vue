@@ -2,7 +2,7 @@
   <div class="character-select">
     <h1>Select a character</h1>
     <div v-for="(char, name) in characters" v-bind:key="name"
-      @click="char.inventory ? char.inventory = false : characterEquipment(char.characterId)"
+      @click="char.inventory && char.showInventory ? char.showInventory = false : characterEquipment(char.characterId)"
       :style="'background-color: rgb(' + char.emblemColor.red + ',' + char.emblemColor.green + ',' + char.emblemColor.blue + ',0.2);'">
       <div class="character" :style="'background-image: url(\'//bungie.net' + char.emblemBackgroundPath + '\');'">
         <div class="contents">
@@ -10,7 +10,7 @@
           <p>Last Played: {{ $dateStr(Date.parse(char.dateLastPlayed)) }}</p>
         </div>
       </div>
-      <div v-if="char.inventory" class="inventory">
+      <div v-if="char.inventory && char.showInventory" class="inventory">
         <h2>Equipped</h2>
         <div class="item" v-for="(item,key) in char.inventory" v-bind:key="key">
           <img v-if="item.displayProperties.hasIcon" :src="'//bungie.net'+item.displayProperties.icon"/><br/>
@@ -68,6 +68,7 @@ export default {
   },
   methods: {
     async characterEquipment(characterId) {
+      this.$set(this.characters[characterId],'showInventory',true)
       let characterItems = await getCharacterItems(this.membershipType,this.membershipId,characterId)
       let tempEquipped = characterItems.equipment.data.items
       let tempOnCharacter = characterItems.inventory.data.items
