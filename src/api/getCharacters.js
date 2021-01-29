@@ -17,7 +17,7 @@ const getMembership = async () => {
 const getCharacters = async (memTypeId, memId) => {
     if (tokenExpired()) { await refreshToken() }
     let access_token = JSON.parse(localStorage.getItem('token')).access_token
-    let request = await axios.get('https://www.bungie.net/platform/Destiny2/' + memTypeId + '/Profile/' + memId + '?components=Characters,ProfileProgression', {
+    let request = await axios.get('https://www.bungie.net/platform/Destiny2/' + memTypeId + '/Profile/' + memId + '/?components=Characters,ProfileProgression', {
         headers: {
             Authorization: 'Bearer ' + access_token,
             'x-api-key': localStorage.getItem('x-api-key'),
@@ -29,15 +29,39 @@ const getCharacters = async (memTypeId, memId) => {
 const getCharacterItems = async (memTypeId, memId, characterId) => {
     if (tokenExpired()) { await refreshToken() }
     let access_token = JSON.parse(localStorage.getItem('token')).access_token
-    let request = await axios.get('https://www.bungie.net/platform/Destiny2/' + memTypeId + '/Profile/' + memId + '/Character/' + characterId + '?components=CharacterEquipment,CharacterInventories', {
+    let url = 'https://www.bungie.net/platform/Destiny2/' + memTypeId + '/Profile/' + memId + '/Character/' + characterId + '/?components=CharacterEquipment,CharacterInventories'
+    try {
+        let request = await axios.get(url, {
+            headers: {
+                Authorization: 'Bearer ' + access_token,
+                'x-api-key': localStorage.getItem('x-api-key'),
+            }
+        });
+        return request.data.Response
+    } catch (err) {
+        return { request_url: url, error: err, perks: { data: { perks: [{ perkHash: "1796472574"}]}}}
+    }
+}
+
+const getVault = async (memTypeId, memId) => {
+    const vaultId = 138197802 // BucketHash = bucketHash
+    if (tokenExpired()) { await refreshToken() }
+    let access_token = JSON.parse(localStorage.getItem('token')).access_token
+    let components = 'ProfileInventories,ItemSockets,ItemPerks'
+    let request = await axios.get(`https://www.bungie.net/platform/Destiny2/${memTypeId}/Profile/${memId}/?components=${components}`, {
         headers: {
             Authorization: 'Bearer ' + access_token,
             'x-api-key': localStorage.getItem('x-api-key'),
         }
     });
-    return request.data.Response
+    let vaultItems =  request.data.Response.profileInventory.data.items.filter((item) => { return item.bucketHash == vaultId } )
+    let perks = request.data.Response.itemComponents.perks.data
+    let sockets = request.data.Response.itemComponents.sockets.data
+    console.log(request.data.Response)
+    // return vaultItems
+    return { vault: vaultItems, perks: perks, sockets: sockets } 
 }
 
 export {
-    getMembership, getCharacters, getCharacterItems
+    getMembership, getCharacters, getCharacterItems, getVault
 }

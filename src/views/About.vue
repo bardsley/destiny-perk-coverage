@@ -1,8 +1,11 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
-    <button @click="getCharacterHit">Get Character</button>
-    <button @click="clickRefreshToken">Refresh Access</button>
+    <div class="buttons">
+      <button @click="getCharacterHit">Get Character</button>
+      <button @click="clickRefreshToken">Refresh Access</button>
+    </div>
+    <img v-if="membership.bungieNetUser" :src="'https://bungie.net/'+membership.bungieNetUser.profilePicturePath" alt="">
     <pre>
       {{ membership }}
     </pre>

@@ -33,7 +33,24 @@ const routes = [
     path: '/character/select',
     name: 'CharacterSelect',
     component: () => import(/* webpackChunkName: "character" */ '../views/CharacterSelect.vue')
-  }
+  },
+  {
+    path: '/perks',
+    name: 'PerkSelect',
+    component: () => import(/* webpackChunkName: "perks" */ '../views/Perks.vue')
+  },
+  {
+    path: '/perks/:membershipType/:membershipId/:characterId',
+    name: 'PerkListing',
+    props: route => ( { membershipType: route.params.membershipType, membershipId: route.params.membershipId, characterId: route.params.characterId } ),
+    component: () => import(/* webpackChunkName: "perks" */ '../views/Perks.vue')
+  },
+  {
+    path: '/experiement/:membershipType/:membershipId/:characterId',
+    name: 'Experiment',
+    props: route => ( { membershipType: route.params.membershipType, membershipId: route.params.membershipId, characterId: route.params.characterId } ),
+    component: () => import(/* webpackChunkName: "experiement" */ '../views/Experiment.vue')
+  },
   
 ]
 

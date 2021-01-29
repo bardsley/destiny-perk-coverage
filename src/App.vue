@@ -1,19 +1,23 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link :to="{name: 'BungieAuth'}">Auth</router-link> | 
-            <router-link :to="{name: 'CharacterSelect'}">Character Select</router-link>
-
+      <router-link to="/">Home</router-link>
+      <router-link to="/about">About</router-link>
+      <router-link :to="{name: 'BungieAuth'}">Auth</router-link>
+      <router-link :to="{name: 'CharacterSelect'}">Character Select</router-link>
+      <router-link :to="{name: 'PerkSelect'}">Perks</router-link>
     </div>
 
     <router-view/>
+
+    <Footer></Footer>
+    
   </div>
 </template>
 
 <script>
 // import {getCategories} from '@/api/manifest'
+import Footer from '@/components/Footer.vue'
 
 export default {
   data() {
@@ -30,7 +34,10 @@ export default {
   },
   methods: {
     
-  }
+  },
+  components: {
+    Footer
+  },
 }
 </script>
 
@@ -38,30 +45,47 @@ export default {
 :root {
   // Widths
   --item-border-width: 3px;
+  // Colours
+  --nav: #1a1a1a;
+  --footer: #1a1a1a;
+  --footer-text: #efeeee;
+  --gentle-edge: rgba(255,255,255,0.1);
+  --gentle-backing: rgba(255,255,255,0.4);
+  --background: rgb(222, 212, 212);
+  --links: rgb(191, 50, 50);
+  --active: rgb(212, 30, 30);
 }
-
+body { background: var(--background); padding: 5rem 0 0rem 0;}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
   color: #2c3e50;
+  box-sizing: border-box; * { box-sizing: border-box; }
 
-  box-sizing: border-box;
-  * {
-    box-sizing: border-box;
-  }
-}
+  a { color: var(--links); text-decoration: none; }
 
-#nav {
-  padding: 30px;
+  #nav {
+    background: var(--nav);
+    width: 100%;
+    position:fixed; top:0; left:0;
+    display:flex;
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+    a {
+      font-weight: bold;
+      color: var(--links);
+      
+      padding: 30px 30px;
 
-    &.router-link-exact-active {
-      color: #42b983;
+      &.router-link-exact-active {
+        color: var(--active);
+        background: var(--gentle-edge);
+      }
     }
   }
+
 }
+
+
 </style>

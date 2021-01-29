@@ -32,3 +32,15 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Useful websites
+APi Docs : [https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType]
+Bungie OAuth: [https://github.com/Bungie-net/api/wiki/OAuth-Documentation]
+Usage Wiki : [https://github.com/vpzed/Destiny2-API-Info/wiki]
+Dataset explorer: [https://data.destinysets.com/]
+Bungie Apps: [https://www.bungie.net/en/Application]
+Destiny Bot : [https://warmind.io/]
+
+### Tools used during dev
+Ngrok for tunneling OAuth2: [https://dashboard.ngrok.com]
+Firebase: [https://console.firebase.google.com/project/destiny-perk-coverage]
