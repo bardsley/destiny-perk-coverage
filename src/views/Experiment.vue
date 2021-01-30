@@ -28,6 +28,7 @@ export default {
     },
     async created() {
 
+        console.debug("Load the experiment")
         // Get Vault instances
         let vaultContents = await getVault(this.membershipType,this.membershipId )       
 

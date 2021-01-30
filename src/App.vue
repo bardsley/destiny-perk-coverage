@@ -6,8 +6,10 @@
       <router-link :to="{name: 'BungieAuth'}">Auth</router-link>
       <router-link :to="{name: 'CharacterSelect'}">Character Select</router-link>
       <router-link :to="{name: 'PerkSelect'}">Perks</router-link>
+      <router-link v-if="true" :to="{ name: 'Experiment', params: navInfo }">Vault</router-link>
     </div>
 
+    <div class="debug"> --> Router {{ $route }}</div>
     <router-view/>
 
     <Footer></Footer>
@@ -20,9 +22,11 @@
 import Footer from '@/components/Footer.vue'
 
 export default {
+  props: ['characterId'],
   data() {
     return {
-      categories: {}
+      categories: {},
+      navInfo: {}
     }
   },
   created() {
@@ -31,10 +35,19 @@ export default {
     } else {
       localStorage.setItem('x-api-key','742c14f071164cef9bb681b545c3e7be')
     }
+    console.log(this.$route.params['characterId'])
+    this.navInfo = {
+      membershipType: localStorage.getItem('membershipType'),
+      membershipId: localStorage.getItem('membershipId'),
+      characterId: this.$route.params['characterId']
+    }
+    // this.navInfo['characterId'] = 'Gordon' //this.$route.params['characterId']
   },
-  methods: {
-    
-  },
+  // watch: {
+  //   $route(to, from) {
+  //     console.log($route.params.characterId,to,from)
+  //   }
+  // },
   components: {
     Footer
   },
@@ -46,16 +59,16 @@ export default {
   // Widths
   --item-border-width: 3px;
   // Colours
-  --nav: #1a1a1a;
+  --nav: rgba(0,0,0,255); // #1a1a1a;
   --footer: #1a1a1a;
   --footer-text: #efeeee;
   --gentle-edge: rgba(255,255,255,0.1);
   --gentle-backing: rgba(255,255,255,0.4);
-  --background: rgb(222, 212, 212);
+  --background: rgba(222, 212, 212, 1);
   --links: rgb(191, 50, 50);
   --active: rgb(212, 30, 30);
 }
-body { background: var(--background); padding: 5rem 0 0rem 0;}
+body { background: var(--background); padding: 3rem 0 0rem 0;}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -71,12 +84,12 @@ body { background: var(--background); padding: 5rem 0 0rem 0;}
     width: 100%;
     position:fixed; top:0; left:0;
     display:flex;
-
+    z-index: 1000;
     a {
       font-weight: bold;
       color: var(--links);
       
-      padding: 30px 30px;
+      padding: 15px 30px;
 
       &.router-link-exact-active {
         color: var(--active);

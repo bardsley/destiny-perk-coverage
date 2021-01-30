@@ -30,6 +30,9 @@ export default {
       characters: {}
     }
   },
+   created() {
+     console.debug("Load about")
+   },
   methods: {
     clickRefreshToken() {
       refreshToken()

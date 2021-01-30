@@ -10,7 +10,9 @@ const getMembership = async () => {
             'x-api-key': localStorage.getItem('x-api-key'),
         }
     });
-    // localStorage.setItem('membershipId',)
+    console.log(request.data.Response)
+    localStorage.setItem('membershipId',request.data.Response.destinyMemberships[0].membershipId)
+    localStorage.setItem('membershipType',request.data.Response.destinyMemberships[0].membershipType)
     return request.data.Response
 }
 

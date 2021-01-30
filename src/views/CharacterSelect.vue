@@ -34,7 +34,7 @@
       <!-- <pre>{{ char }} </pre> -->
     </div>
 
-    <div class="selected-char">
+    <div v-if="selectedChar && selectedChar.characterId" class="selected-char">
         Select a Character
         Inventory {{ selectedChar.showInventory }} {{ inventorySize }}
         Played for {{ selectedChar.minutesPlayedTotal }}
@@ -43,7 +43,13 @@
           membershipId: selectedChar.membershipId,
           characterId: selectedChar.characterId
           } 
-        }">Perks</router-link>
+        }">Perks</router-link> | 
+        <router-link :to="{name: 'Experiment', params: { 
+          membershipType: selectedChar.membershipType,
+          membershipId: selectedChar.membershipId,
+          characterId: selectedChar.characterId
+          } 
+        }">Experiment</router-link>
     </div>
 
     <div v-if="selectedChar.showInventory" class="inventory">
@@ -83,6 +89,7 @@ import {
 import { getItemDefinition,setUpCategories,getItemInstance } from "@/api/manifest";
 
 export default {
+  props: ['characterId'],
   data() {
     return {
       membership: {},
@@ -114,6 +121,7 @@ export default {
       if( char.characterId == this.selectedChar.characterId && char.inventory && char.showInventory ) {
         char.showInventory = false 
       } else {
+        this.$router.push({name: 'Character', params: { characterId: char.characterId }})
         this.characterEquipment(char.characterId)
       }
     },
