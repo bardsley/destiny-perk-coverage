@@ -1,6 +1,7 @@
 {
   "rulesFile": "database.rules.json",
   "hosting": {
+    "site": "destiny-perk-coverage",
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -13,5 +14,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "database": {
+    "rules": "database.rules.json"
   }
 }
