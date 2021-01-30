@@ -1,5 +1,5 @@
 <template>
-    <div class="footer">
+    <div id="footer">
 
       <div class="section">
         <h2>Cool Destiny2 Tools</h2>
@@ -34,8 +34,8 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
-  .footer {
+<style lang="scss">
+  #footer {
     width: calc(100% + 1.5em); 
     display: flex; justify-content: space-around;
     // position: absolute; bottom:0; left:0;

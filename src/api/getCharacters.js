@@ -31,7 +31,8 @@ const getCharacters = async (memTypeId, memId) => {
 const getCharacterItems = async (memTypeId, memId, characterId) => {
     if (tokenExpired()) { await refreshToken() }
     let access_token = JSON.parse(localStorage.getItem('token')).access_token
-    let url = 'https://www.bungie.net/platform/Destiny2/' + memTypeId + '/Profile/' + memId + '/Character/' + characterId + '/?components=CharacterEquipment,CharacterInventories'
+    let components = 'CharacterEquipment,CharacterInventories,ItemSockets'
+    let url = `https://www.bungie.net/platform/Destiny2/${memTypeId}/Profile/${memId}/Character/${characterId}/?components=${components}`
     try {
         let request = await axios.get(url, {
             headers: {
@@ -39,7 +40,12 @@ const getCharacterItems = async (memTypeId, memId, characterId) => {
                 'x-api-key': localStorage.getItem('x-api-key'),
             }
         });
-        return request.data.Response
+        let characterEquipment = request.data.Response.equipment.data.items
+        let characteInventory =  request.data.Response.inventory.data.items
+        let sockets = request.data.Response.itemComponents.sockets.data
+        let returnObj = { equipment: characterEquipment, inventory: characteInventory, sockets: sockets }
+        console.log("CharacterItems: ",returnObj)
+        return returnObj
     } catch (err) {
         return { request_url: url, error: err, perks: { data: { perks: [{ perkHash: "1796472574"}]}}}
     }
@@ -59,9 +65,10 @@ const getVault = async (memTypeId, memId) => {
     let vaultItems =  request.data.Response.profileInventory.data.items.filter((item) => { return item.bucketHash == vaultId } )
     let perks = request.data.Response.itemComponents.perks.data
     let sockets = request.data.Response.itemComponents.sockets.data
-    console.log(request.data.Response)
+    let returnObj = { items: vaultItems, perks: perks, sockets: sockets } 
+    console.log("Vault Items: ",returnObj)
     // return vaultItems
-    return { vault: vaultItems, perks: perks, sockets: sockets } 
+    return returnObj
 }
 
 export {

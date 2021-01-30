@@ -2,15 +2,17 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link>
-      <router-link to="/about">About</router-link>
-      <router-link :to="{name: 'BungieAuth'}">Auth</router-link>
-      <router-link :to="{name: 'CharacterSelect'}">Character Select</router-link>
-      <router-link :to="{name: 'PerkSelect'}">Perks</router-link>
-      <router-link v-if="true" :to="{ name: 'Experiment', params: navInfo }">Vault</router-link>
+      <router-link :to="{ name: 'CharacterSelect' }">Change Character</router-link>
+      <router-link v-if="membershipId" :to="{ name: 'Vault', params: { membershipType: membershipType, membershipId: membershipId }}">Vault</router-link>
+      <router-link v-if="membershipId" :to="{ name: 'PerkGraph', params: { membershipType: membershipType, membershipId: membershipId }}">Perk Graph</router-link>
+      <!-- <router-link to="/about">About</router-link> -->
+      <!-- <router-link :to="{name: 'BungieAuth'}">Auth</router-link> -->
+      <!-- <router-link :to="{name: 'Onboard'}">Onboard</router-link> -->
+      <!-- <router-link :to="{name: 'PerkSelect'}">Perks</router-link> -->
+      <!-- <router-link v-if="true" :to="{ name: 'Experiment', params: navInfo }">Vault</router-link> -->
     </div>
 
-    <div class="debug"> --> Router {{ $route }}</div>
-    <router-view/>
+    <router-view @setMembership="setMembership"/>
 
     <Footer></Footer>
     
@@ -22,11 +24,12 @@
 import Footer from '@/components/Footer.vue'
 
 export default {
-  props: ['characterId'],
   data() {
     return {
       categories: {},
-      navInfo: {}
+      navInfo: {},
+      membershipId: null,
+      membershipType: null,
     }
   },
   created() {
@@ -35,19 +38,13 @@ export default {
     } else {
       localStorage.setItem('x-api-key','742c14f071164cef9bb681b545c3e7be')
     }
-    console.log(this.$route.params['characterId'])
-    this.navInfo = {
-      membershipType: localStorage.getItem('membershipType'),
-      membershipId: localStorage.getItem('membershipId'),
-      characterId: this.$route.params['characterId']
-    }
-    // this.navInfo['characterId'] = 'Gordon' //this.$route.params['characterId']
   },
-  // watch: {
-  //   $route(to, from) {
-  //     console.log($route.params.characterId,to,from)
-  //   }
-  // },
+  methods: {
+    setMembership(membership) {
+      this.membershipId = membership.id
+      this.membershipType = membership.type
+    }
+  },
   components: {
     Footer
   },

@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Experiment from '../views/Experiment.vue'
-
 
 Vue.use(VueRouter)
 
@@ -43,6 +41,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "character" */ '../views/CharacterSelect.vue')
   },
   {
+    path: '/onboard',
+    name: 'Onboard',
+    props: route => ( { characterId: route.params.characterId } ),
+    component: () => import(/* webpackChunkName: "character" */ '../views/Onboard.vue')
+  },
+  {
     path: '/perks',
     name: 'PerkSelect',
     component: () => import(/* webpackChunkName: "perks" */ '../views/Perks.vue')
@@ -54,11 +58,21 @@ const routes = [
     component: () => import(/* webpackChunkName: "perks" */ '../views/Perks.vue')
   },
   {
+    path: '/perks/:membershipType/:membershipId',
+    name: 'PerkGraph',
+    props: route => ( { membershipType: route.params.membershipType, membershipId: route.params.membershipId, } ),
+    component: () => import(/* webpackChunkName: "perks" */ '../views/PerkGraph.vue')
+  },
+  {
     path: '/experiment/:membershipType/:membershipId/:characterId',
     name: 'Experiment',
     props: route => ( { membershipType: route.params.membershipType, membershipId: route.params.membershipId, characterId: route.params.characterId } ),
-    // component: () => import(/* webpackChunkName: "experiement" */ '../views/Experiment.vue')
-    component: Experiment
+    component: () => import(/* webpackChunkName: "experiement" */ '../views/Experiment.vue')
+  },
+  {
+    path: '/vault/:membershipType/:membershipId', name: 'Vault',
+    props: route => ( { membershipType: route.params.membershipType, membershipId: route.params.membershipId } ),
+    component: () => import(/* webpackChunkName: "vault" */ '../views/Vault.vue')
   },
   
 ]

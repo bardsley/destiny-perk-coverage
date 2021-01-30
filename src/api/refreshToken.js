@@ -3,10 +3,8 @@ import axios from 'axios'
 const storeToken = (token) => {
     const parsedToken = JSON.stringify(token);
     const expiry = new Date().getTime() + (token.expires_in * 1000)
-    // console.debug('Storing Token',token, parsedToken,"Expiry",expiry)
     localStorage.setItem('token',parsedToken)
     localStorage.setItem('token_expires',expiry)
-    
 }
 const retrieveToken = () => {
     let return_token = null
@@ -21,19 +19,21 @@ const retrieveToken = () => {
 }
 
 const tokenExpired = () => {
-    const tokenExpiry = parseInt(localStorage.getItem('token_expires')) || 0
-    return (tokenExpiry < new Date().getTime())
+    const tokenExpiry = parseInt(localStorage.getItem('token_expires')) || -1000000000 
+    const token_expired = tokenExpiry < new Date().getTime()
+    const token_missing = !localStorage.getItem('token')
+    return (token_missing || token_expired)
 }
 
 const refreshToken = async () => {
     console.debug("Refresh Access Token")
     let token = JSON.parse(localStorage.getItem('token'))
-    // let access_token = token.access_token
     let refresh_token = token.refresh_token
-    // console.log('Tokens:',access_token,refresh_token)
-
-    let request = await axios.post('https://www.bungie.net/platform/app/oauth/token/', 
-        "client_id=35259&client_secret=6tgrKtTvbN0rSmAhSOFBDAbBOdfj0cFdWMTzmwGVJwU&grant_type=refresh_token&refresh_token="+refresh_token,
+    let tokenRefreshUrl = 'https://www.bungie.net/platform/app/oauth/token/'
+    let secret = '6tgrKtTvbN0rSmAhSOFBDAbBOdfj0cFdWMTzmwGVJwU'
+    let tokenRefreshData =`client_id=35259&client_secret=${secret}&grant_type=refresh_token&refresh_token=${refresh_token}`
+    let request = await axios.post(tokenRefreshUrl, 
+        tokenRefreshData,
         {
             headers: {
                 'x-api-key': localStorage.getItem('x-api-key'),

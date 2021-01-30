@@ -10,14 +10,83 @@
           <p>Last Played: {{ $dateStr(Date.parse(char.dateLastPlayed)) }}</p>
         </div>
       </div>
+      <!-- <div v-if="char.showInventory" class="inventory">
+        <div v-if="!char.inventory">
+          Loading
+        </div>
+        <template v-else>
+          <h2>Equipped</h2>
+          <div class="item" v-for="(item,key) in char.inventory" v-bind:key="key"
+            @click="inspectItem(item.itemInstanceId)" >
+            <img v-if="item.displayProperties.hasIcon" :src="'//bungie.net'+item.displayProperties.icon"/><br/>
+            <div class="details">
+              <h2>{{ item.displayProperties.name }}</h2>
+              <span v-for="(hashId) in item.itemCategoryHashes" :key="hashId">
+                {{categories[hashId].displayProperties.name || "n/a"}},
+              </span>
+              
+            </div>
+          </div>
+        </template>
+      </div> -->
+      
+      
+      <!-- <pre>{{ char }} </pre> -->
     </div>
+
+    <div v-if="selectedChar && selectedChar.characterId" class="selected-char">
+        Select a Character
+        Inventory {{ selectedChar.showInventory }} {{ inventorySize }}
+        Played for {{ selectedChar.minutesPlayedTotal }}
+        <router-link :to="{name: 'PerkListing', params: { 
+          membershipType: selectedChar.membershipType,
+          membershipId: selectedChar.membershipId,
+          characterId: selectedChar.characterId
+          } 
+        }">Perks</router-link> | 
+        <router-link :to="{name: 'Experiment', params: { 
+          membershipType: selectedChar.membershipType,
+          membershipId: selectedChar.membershipId,
+          characterId: selectedChar.characterId
+          } 
+        }">Experiment</router-link>
+    </div>
+
+    <div v-if="selectedChar.showInventory" class="inventory">
+        <div v-if="!selectedChar.inventory">
+          Loading for {{ selectedChar.characterId }}
+        </div>
+        <template v-else>
+          <h2>Equipped</h2>
+          <div class="item" v-for="(item,key) in selectedChar.inventory" v-bind:key="key"
+            @click="inspectItem(item.itemInstanceId)" >
+            <img v-if="item.displayProperties.hasIcon" :src="'//bungie.net'+item.displayProperties.icon"/><br/>
+            <div class="details">
+              <h2>{{ item.displayProperties.name }}</h2>
+              <span v-for="(hashId) in item.itemCategoryHashes" :key="hashId">
+                {{categories[hashId].displayProperties.name || "n/a"}},
+              </span>
+              
+            </div>
+          </div>
+        </template>
+      </div>
+    <!-- <ul>
+      <li v-for="item in equipment" :key="item.itemHash">
+        <pre>{{ item }}</pre>
+      </li>
+    </ul> -->
   </div>
 </template>
 
 <script>
-import { tokenExpired } from '@/api/refreshToken';
-import { getCharacters, getMembership, getCharacterItems, } from "@/api/getCharacters";
-import { getItemDefinition, setUpCategories, getItemInstance } from "@/api/manifest";
+// import { getMembership } from '@/api/getCharacters';
+import {
+  getCharacters,
+  getMembership,
+  getCharacterItems,
+} from "@/api/getCharacters";
+import { getItemDefinition,setUpCategories,getItemInstance } from "@/api/manifest";
 
 export default {
   props: ['characterId'],
@@ -32,17 +101,12 @@ export default {
     };
   },
   async created() {
-    if(tokenExpired()) { 
-      console.log("Token expired")
-      this.$router.push({ name: 'BungieAuth' })
-    } else { 
-      setUpCategories().then((cats)=>{this.categories = cats })
-      this.membership = await getMembership();
-      this.membershipId = this.membership.destinyMemberships[0].membershipId;
-      this.membershipType = this.membership.destinyMemberships[0].membershipType;
-      this.$emit('setMembership',{ id: this.membershipId, type: this.membershipType })
-      this.characters = await getCharacters(this.membershipType,this.membershipId)
-    }
+    setUpCategories().then((cats)=>{this.categories = cats });
+    // let vm = this
+    this.membership = await getMembership();
+    this.membershipId = this.membership.destinyMemberships[0].membershipId;
+    this.membershipType = this.membership.destinyMemberships[0].membershipType;
+    this.characters = await getCharacters(this.membershipType,this.membershipId)
   },
   computed: {
     inventorySize() {
@@ -59,6 +123,7 @@ export default {
       } else {
         this.$router.push({name: 'Character', params: { characterId: char.characterId }})
         this.characterEquipment(char.characterId)
+        this.$emit('myEvent')
       }
     },
     async characterEquipment(characterId) {
