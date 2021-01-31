@@ -30,7 +30,7 @@ const refreshToken = async () => {
     let token = JSON.parse(localStorage.getItem('token'))
     let refresh_token = token.refresh_token
     let tokenRefreshUrl = 'https://www.bungie.net/platform/app/oauth/token/'
-    let secret = '6tgrKtTvbN0rSmAhSOFBDAbBOdfj0cFdWMTzmwGVJwU'
+    let secret = window.location.host == 'destiny-perk-coverage.web.app' ? 'rxIuYYnX3ZKJFUmtNXn5vE7dn0sZIfKLeo2yvo3yn7o' : '6tgrKtTvbN0rSmAhSOFBDAbBOdfj0cFdWMTzmwGVJwU'
     let tokenRefreshData =`client_id=35259&client_secret=${secret}&grant_type=refresh_token&refresh_token=${refresh_token}`
     let request = await axios.post(tokenRefreshUrl, 
         tokenRefreshData,
