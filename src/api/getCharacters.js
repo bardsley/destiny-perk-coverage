@@ -31,7 +31,7 @@ const getCharacters = async (memTypeId, memId) => {
 const getCharacterItems = async (memTypeId, memId, characterId) => {
     if (tokenExpired()) { await refreshToken() }
     let access_token = JSON.parse(localStorage.getItem('token')).access_token
-    let components = 'CharacterEquipment,CharacterInventories,ItemSockets'
+    let components = 'CharacterEquipment,CharacterInventories,ItemSockets,ItemPerks'
     let url = `https://www.bungie.net/platform/Destiny2/${memTypeId}/Profile/${memId}/Character/${characterId}/?components=${components}`
     try {
         let request = await axios.get(url, {
@@ -43,11 +43,12 @@ const getCharacterItems = async (memTypeId, memId, characterId) => {
         let characterEquipment = request.data.Response.equipment.data.items
         let characteInventory =  request.data.Response.inventory.data.items
         let sockets = request.data.Response.itemComponents.sockets.data
-        let returnObj = { equipment: characterEquipment, inventory: characteInventory, sockets: sockets }
+        let perks = request.data.Response.itemComponents.perks.data
+        let returnObj = { equipment: characterEquipment, inventory: characteInventory, sockets: sockets, perks: perks }
         console.log("CharacterItems: ",returnObj)
         return returnObj
     } catch (err) {
-        return { request_url: url, error: err, perks: { data: { perks: [{ perkHash: "1796472574"}]}}}
+        return { request_url: url, error: err, perks: { "0000": { perks: [{ perkHash: "1796472574"}]}}}
     }
 }
 
