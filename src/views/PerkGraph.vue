@@ -5,21 +5,30 @@
         
 
         <table>
-            <thead><td></td>
-                <th class="rotate" v-for="weapon_type in weapon_types" :key="weapon_type">
-                    <div><span>{{ weapon_type }} </span></div>
-                </th><th class="rotate"><div><span>Total</span></div></th>
+            <thead>
+                <tr>
+                    <td class="backing"><div></div></td>
+                    <th class="rotate" v-for="weapon_type in weapon_types" :key="weapon_type">
+                        <div><span>{{ weapon_type }} </span></div>
+                    </th><th class="rotate"><div><span>Total</span></div></th>
+                </tr>
             </thead>
             <tbody>
-                <template v-for="(perk,key,index) in perkGrid" > 
-                    <tr :key="key">
-                        <th>{{ key }} <span>{{perk.details}}</span></th>
-                        <td v-for="weapon_type in weapon_types" :key="key+'_'+weapon_type">{{ perk[weapon_type] }} </td>
-                        <td>{{perk.total}}</td>
+                <template v-for="(perkDetails,perkName,index) in perkGrid" > 
+                    <tr :key="perkName">
+                        <th @click="toggleDetails(`perk-details-${index}`)">{{ perkName }}</th>
+                        <td v-for="weapon_type in weapon_types" :key="perkName+'_'+weapon_type">
+                            <div v-if="perkDetails[weapon_type]" class="totals">
+                                <span class="any">{{ perkDetails[weapon_type].total }} </span>
+                                <span :class="perkDetails[weapon_type].locked > 0 ? ['locked'] : ['locked','empty'] ">{{ perkDetails[weapon_type].locked }}</span>
+                                <span :class="perkDetails[weapon_type].unlocked > 0 ? ['unlocked'] : ['unlocked','empty'] ">{{ perkDetails[weapon_type].unlocked }}</span>
+                            </div>
+                        </td>
+                        <td>{{perkDetails.total}}</td>
                     </tr>
-                    <tr :key="key+'-details'" :id="`perk-details-${index}`">
+                    <tr :key="perkName+'-details'" :id="`perk-details-${index}`" class="details hidden">
                         <td colspan="18">
-                            <pre>{{ perk }}</pre>
+                            <pre>{{ perkDetails }}</pre>
                         </td>
                     </tr>
                 </template>
@@ -81,6 +90,8 @@ export default {
         console.log("Perks size",Object.keys(this.perks).length)
         
         // Build the grid
+
+        // perkName -> WeaponType -> { locked: X , unlocked: X }
         this.weapons.forEach((instance) => {
             let weapon = instance.item
             let category = weapon.itemTypeDisplayName ? weapon.itemTypeDisplayName : false
@@ -91,11 +102,17 @@ export default {
                 perks.forEach(async (perkId) => {
                     let perk = await getPerkDefinition(perkId.perkHash)
                     if(perk.isDisplayable) { 
-                        console.log("Perkdef:",perk)
+                        // console.log("Perkdef:",perk)
                         let perkName = perk.displayProperties.name
+                        // Setup grid space for this perk and weapontype combo
                         if(!this.perkGrid[perkName]) { this.$set(this.perkGrid,perkName,{ details: perk, total: 0 }) }
-                        if(!this.perkGrid[perkName][weapon.itemTypeDisplayName]) { this.$set(this.perkGrid[perkName],weapon.itemTypeDisplayName,0) }
-                        this.perkGrid[perkName][weapon.itemTypeDisplayName] = this.perkGrid[perkName][weapon.itemTypeDisplayName] + 1
+                        if(!this.perkGrid[perkName][weapon.itemTypeDisplayName]) { 
+                            this.$set(this.perkGrid[perkName],weapon.itemTypeDisplayName,{ locked: 0 , unlocked: 0 , total: 0 }) 
+                        }
+                        // Is it locked ?
+                        let key = instance.state & 1 ? 'locked' : 'unlocked'
+                        this.perkGrid[perkName][weapon.itemTypeDisplayName][key] = this.perkGrid[perkName][weapon.itemTypeDisplayName][key] + 1
+                        this.perkGrid[perkName][weapon.itemTypeDisplayName]['total'] = this.perkGrid[perkName][weapon.itemTypeDisplayName]['total'] + 1
                         this.perkGrid[perkName].total += 1
                     }
                 })
@@ -117,6 +134,10 @@ export default {
                     return instance
                 })
             )
+        },
+        toggleDetails(htmlId) { 
+            let htmlNode = document.getElementById(htmlId)
+            if(htmlNode.classList.contains('hidden')) { htmlNode.classList.remove('hidden') } else { htmlNode.classList.add('hidden') }
         },
         getWeaponSockets(sockets) {
             console.log("Not processing",sockets)
@@ -156,37 +177,75 @@ export default {
 </script>
 
 <style lang="scss">
-table { border-collapse: collapse; }
-tbody th { 
-    text-align: left; 
-
-    span { 
-        font-size: 0.7em; display:none;
+#perk-graph {
+    h1 { margin-bottom:0; }
+    p { margin:0;}
+    table { border-collapse: collapse; 
+        padding-right: 50px; margin-top: -3em; 
+        margin-right: 50px;
+        position:relative;
+        // overflow: hidden;
     }
-}
+    tbody th { 
+        text-align: left; 
+    }
+    thead th {
+        position: -webkit-sticky;
+        position: sticky;
+        left: 0;
+        top:0;
+        z-index: 1;
+    }
+    td.backing {
+        position: sticky;
+        width: 100%;
+        height: 140px; top: 0;
+    }
+    td.backing div { background: green;
+        width: 20000px;
+        position: absolute;
+        height: 90px;
+        z-index: 900;
+        top: 50px;
+    }
 
-th.rotate {
-    /* Something you can count on */
-    height: 140px;
-    white-space: nowrap;
+    th.rotate {
+        /* Something you can count on */
+        height: 140px;
+        white-space: nowrap;
+        > div {
+            transform: 
+            /* Magic Numbers */
+            translate(34px, 47px)
+            /* 45 is really 360 - 45 */
+            rotate(315deg);
+            // rotate(0deg);
+            width: 30px;
 
-    > div {
-        transform: 
-        /* Magic Numbers */
-        translate(14px, 51px)
-        /* 45 is really 360 - 45 */
-        rotate(315deg);
-        // rotate(0deg);
-        width: 30px;
-
-        > span {
-            border-bottom: 1px solid #ccc;
-            padding: 5px 10px;
+            > span {
+                border-bottom: 1px solid #ccc;
+                // background: var(--dark-background);
+                padding: 5px 10px;
+            }
         }
     }
+    tbody th { padding: 0 10px; }
+    tbody td { text-align:center; border-spacing:0; padding:0; }
+    tbody td pre { text-align: left; max-width:100%; overflow: hidden; white-space: pre-wrap; }
+    tbody>tr>* { border: 1px solid #ccc; }
+    .hidden { display:none; }
+
+    .totals { 
+        display:flex;
+        flex-wrap: wrap;
+        color: #fff;
+        span { display: block; }
+        .any { width: 100%; background: var(--dark-background); min-width: 3em;}
+        .locked, .unlocked { width: 50%; padding: 0 0.5em; }
+        .locked { background: var(--locked-background); }
+        .locked.empty { background: var(--locked-empty); }
+        .unlocked { background: var(--unlocked-background); }
+        .unlocked.empty { background: var(--unlocked-empty);}
+    }
 }
-tbody th { padding: 5px 10px; }
-tbody td { text-align:center;}
-tbody td pre { text-align: left; max-width:100%; overflow: hidden; white-space: pre-wrap; }
-tbody>tr>* { border: 1px solid #ccc; }
 </style>

@@ -64,6 +64,11 @@ export default {
   --background: rgba(222, 212, 212, 1);
   --links: rgb(191, 50, 50);
   --active: rgb(212, 30, 30);
+  --dark-background: rgba(0,0,0,0.8);
+  --locked-background: rgba(55, 126, 64, 0.8);
+  --locked-empty: rgba(55, 126, 64, 0.1);
+  --unlocked-background: rgba(161, 56, 56, 0.8);
+  --unlocked-empty: rgba(161, 56, 56, 0.1);
 }
 body { background: var(--background); padding: 3rem 0 0rem 0;}
 #app {
