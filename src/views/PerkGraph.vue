@@ -91,6 +91,7 @@ export default {
                 perks.forEach(async (perkId) => {
                     let perk = await getPerkDefinition(perkId.perkHash)
                     if(perk.isDisplayable) { 
+                        console.log("Perkdef:",perk)
                         let perkName = perk.displayProperties.name
                         if(!this.perkGrid[perkName]) { this.$set(this.perkGrid,perkName,{ details: perk, total: 0 }) }
                         if(!this.perkGrid[perkName][weapon.itemTypeDisplayName]) { this.$set(this.perkGrid[perkName],weapon.itemTypeDisplayName,0) }
@@ -103,17 +104,17 @@ export default {
 
     },
     methods: {
-        filterWeapons(items) {
-            return items.filter( (instance) => {
+        filterWeapons(instances) {
+            return instances.filter( (instance) => {
                 return instance.item.itemCategoryHashes && instance.item.itemCategoryHashes.includes(1)
             })
         },
         async addItemDefinitions(instances) {
             return await Promise.all(
-                instances.map(async (item) => {
-                    let itemDef = await getItemDefinition(item.itemHash)
-                    Object.assign(item, { item:itemDef })
-                    return item
+                instances.map(async (instance) => {
+                    let itemDef = await getItemDefinition(instance.itemHash)
+                    Object.assign(instance, { item:itemDef })
+                    return instance
                 })
             )
         },
