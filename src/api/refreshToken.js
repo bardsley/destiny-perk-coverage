@@ -28,10 +28,12 @@ const tokenExpired = () => {
 const refreshToken = async () => {
     console.debug("Refresh Access Token")
     let token = JSON.parse(localStorage.getItem('token'))
+    if(!token) { return false } // Should be to reject promise?
     let refresh_token = token.refresh_token
     let tokenRefreshUrl = 'https://www.bungie.net/platform/app/oauth/token/'
     let secret = window.location.host == 'destiny-perk-coverage.web.app' ? 'rxIuYYnX3ZKJFUmtNXn5vE7dn0sZIfKLeo2yvo3yn7o' : '6tgrKtTvbN0rSmAhSOFBDAbBOdfj0cFdWMTzmwGVJwU'
-    let tokenRefreshData =`client_id=35259&client_secret=${secret}&grant_type=refresh_token&refresh_token=${refresh_token}`
+    let clientId = window.location.host == 'destiny-perk-coverage.web.app' ? 35202 : 35259
+    let tokenRefreshData =`client_id=${clientId}&client_secret=${secret}&grant_type=refresh_token&refresh_token=${refresh_token}`
     let request = await axios.post(tokenRefreshUrl, 
         tokenRefreshData,
         {
