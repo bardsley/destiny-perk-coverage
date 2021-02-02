@@ -2,6 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link>
+      <router-link to="/experiment/1/2/3">Experiment</router-link>
       <router-link :to="{ name: 'CharacterSelect' }">Change Character</router-link>
       <router-link v-if="membershipId" :to="{ name: 'Vault', params: { membershipType: membershipType, membershipId: membershipId }}">Vault</router-link>
       <router-link v-if="membershipId" :to="{ name: 'PerkGraph', params: { membershipType: membershipType, membershipId: membershipId }}">Perk Graph</router-link>
@@ -67,7 +68,8 @@ export default {
   --dark-background: rgba(0,0,0,0.8);
   --locked-background: rgba(55, 126, 64, 0.8);
   --locked-empty: rgba(55, 126, 64, 0.1);
-  --unlocked-background: rgba(161, 56, 56, 0.8);
+  --unlocked-background:  rgba(241, 145, 0, 0.3);
+  --unlocked-total: rgba(161, 56, 56, 0.8);
   --unlocked-empty: rgba(161, 56, 56, 0.1);
 }
 body { background: var(--background); padding: 3rem 0 0rem 0;}
