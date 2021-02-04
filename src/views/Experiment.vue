@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { downloadWishlist , processWishlist } from "@/api/wishlist";
+import { processWishlist } from "@/api/wishlist";
 // import { getItemDefinition } from "@/api/manifest";
 
 export default {
@@ -32,8 +32,8 @@ export default {
     async created() {
         // let currentMode = 'none'
         console.debug("Load the experiment")
-        this.rows = await downloadWishlist()
-        this.wishes = processWishlist(this.rows)
+        // this.rows = await downloadWishlist()
+        this.wishes = await processWishlist()
         // this.rows = this.rows.filter((row) => {
         //     return row.field && row.field.data
         // }).map((row,index) => { 

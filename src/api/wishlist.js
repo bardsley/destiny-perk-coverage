@@ -14,7 +14,7 @@ const downloadWishlist = async () => {
     return rows
 }
 
-const processWishlist = (wishlist) => {
+const addModeToWishlist = (wishlist) => {
 
     let currentMode = 'none'
 
@@ -35,10 +35,13 @@ const processWishlist = (wishlist) => {
         let perks = perkString.split('=')[1].split(',')
         return { item: itemhash, perks: perks,  mode: wish.mode } 
     })
+    return processed
+}
 
+const consolidateRollsOnWishlist = (wishlist) => {
     let rolls = {}
     
-    processed.forEach(wish => { // Store PvP and PvE
+    wishlist.forEach(wish => { // Store PvP and PvE
         if( !Object.keys(rolls).includes(wish.item) ) { rolls[wish.item] = { // make sure we have somewhere to store it 
             pvp: [[],[],[],[]] , pve: [[],[],[],[]] , god: [[],[],[],[]] } 
         } 
@@ -58,6 +61,13 @@ const processWishlist = (wishlist) => {
   
     console.log(rolls)
     return rolls
+}
+
+const processWishlist = async () => {
+    let rows = await downloadWishlist()
+    let processed = addModeToWishlist(rows)
+    let rolls = consolidateRollsOnWishlist(processed)
+    return rolls 
 }
 
 export { downloadWishlist , processWishlist }
