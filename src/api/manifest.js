@@ -1,13 +1,19 @@
 import axios from 'axios'
 import { tokenExpired, refreshToken } from './refreshToken'
-import { Mutex } from 'async-mutex';
+import { Mutex, Semaphore } from 'async-mutex';
 
 const itemInstanceCacheMutex = new Mutex();
+const limitRequests = new Semaphore(50);
+
 
 
 const getItemDefinition = async (hash) => {
-    let request = await axios.get('https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app/manifest/inventoryItems/' + hash + '.json', {});
-    // console.log(hash,request)
+    /* eslint-disable no-unused-vars */
+    const [value, release] = await limitRequests.acquire();
+    let request = {data: 'failed' }
+    try {
+      request = await axios.get('https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app/manifest/inventoryItems/' + hash + '.json', {});
+    } finally { release(); }
     return request.data
 }
 

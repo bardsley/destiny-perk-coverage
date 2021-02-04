@@ -15,36 +15,43 @@
                 </tr>
             </thead>
             <tbody>
-                <template v-for="(perkDetails,perkName,index) in perkGrid" > 
-                    <tr :key="perkName">
-                        <th @click="toggleDetails(`perk-details-${index}`)">{{ perkName }}</th>
-                        <td v-for="weapon_type in weapon_types" :key="perkName+'_'+weapon_type">
-                            <div v-if="perkDetails[weapon_type]" class="totals">
+                <template v-for="(perk,index) in Object.keys(perkGrid).sort().map((key) => { return Object.assign(perkGrid[key],{ key: key}) })">
+                    <tr :key="perk.key">
+                        <th @click="toggleDetails(`perk-details-${index}`)" 
+                            @mouseover="showTooltip" @mouseleave="hideTooltip">
+                            <img v-if="perk.details.displayProperties.hasIcon" :src="`https://www.bungie.net${perk.details.displayProperties.icon}`" alt="">
+                            <div>
+                                {{ perk.key }} 
+                                <span class="additional">{{ perk.details.itemTypeDisplayName }}</span>
+                                <span class="hover hidden" v-html="perk.details.displayProperties.description.replaceAll('\n','<br/>')"></span>
+                            </div>
+                        </th>
+                        <td v-for="weapon_type in weapon_types" :key="perk.key+'_'+weapon_type">
+                            <div v-if="perk[weapon_type]" class="totals">
                                 <span class="any">
-                                    <span class="pve">{{perkDetails[weapon_type].total.pve}}</span>
-                                    <span class="pvp">{{perkDetails[weapon_type].total.pvp}}</span>
-                                    <span class="god">{{perkDetails[weapon_type].total.god}}</span>
-                                    <span class="junk">{{perkDetails[weapon_type].total.junk}}</span>
+                                    <span class="pve">{{perk[weapon_type].total.pve}}</span>
+                                    <span class="pvp">{{perk[weapon_type].total.pvp}}</span>
+                                    <span class="god">{{perk[weapon_type].total.god}}</span>
+                                    <span class="junk">{{perk[weapon_type].total.junk}}</span>
                                 </span>
-                                <span :class="nodeValuable(perkDetails[weapon_type].locked) > 0 ? ['locked'] : ['locked','empty'] ">
-                                    {{ nodeTotal(perkDetails[weapon_type].locked) }}</span>
-                                <span :class="['unlocked'] + ( nodeTotal(perkDetails[weapon_type].unlocked) == nodeTotal(perkDetails[weapon_type].total) ? [' '] : [' empty']) + ( nodeValuable(perkDetails[weapon_type].unlocked) > 0  ? [' total'] : [''] )">
-                                    {{ nodeTotal(perkDetails[weapon_type].unlocked) }}
+                                <span :class="nodeValuable(perk[weapon_type].locked) > 0 ? ['locked'] : ['locked','empty'] ">
+                                    {{ nodeTotal(perk[weapon_type].locked) }}</span>
+                                <span :class="['unlocked'] + ( nodeTotal(perk[weapon_type].unlocked) == nodeTotal(perk[weapon_type].total) ? [' '] : [' empty']) + ( nodeValuable(perk[weapon_type].unlocked) > 0  ? [' total'] : [''] )">
+                                    {{ nodeTotal(perk[weapon_type].unlocked) }}
                                 </span>
 
                             </div>
                         </td>
-                        <td>{{perkDetails.total}}</td>
+                        <td>{{perk.total}}</td>
                     </tr>
-                    <tr :key="perkName+'-details'" :id="`perk-details-${index}`" class="details hidden">
+                    <tr :key="perk.key+'-details'" :id="`perk-details-${index}`" class="details hidden">
                         <td colspan="18">
-                            <pre>{{ perkDetails }}</pre>
+                            <pre>{{ perk.details }}</pre>
                         </td>
                     </tr>
                 </template>
             </tbody>
         </table>
-
     </div>
 </template>
 
@@ -71,7 +78,7 @@ export default {
         }
     },
     async created() {
-        let debug = 3
+        let ignorableTypes = ['Restore Defaults','Weapon Mod','Shader','','Intrinsic','Weapon Ornament']
         this.status = "Loading Categories"
         this.categories = await setUpCategories()
         this.status = "Loading Plugsets"
@@ -121,25 +128,18 @@ export default {
         this.weapons.forEach(async (instance) => {
             let weapon = instance.item
             // let weaponName = weapon.displayProperties.name
-            // console.log(`Weapon: ${weapon.displayProperties.name}`)
+            // console.log(`Weapon: ${weapon.displayProperties.name}`,weapon)
             let category = weapon.itemTypeDisplayName ? weapon.itemTypeDisplayName : false
-            if(category) {
+            if(category && weapon.summaryItemHash != 2673424576) { // only process non exotics
                 if(!this.weapon_types.includes(category)) { this.weapon_types.push(category) }
 
-                // let perks = this.perks[instance.itemInstanceId].perks
-
                 let sockets = this.sockets[instance.itemInstanceId].sockets
-                // if(debug > 0 ) { debug = debug - 1; console.error("Perks: ",perks); console.debug("Sockets: ",sockets); }
-
+                
                 await sockets.forEach(async (socket) => {
-                    // let perk = await getPerkDefinition(perkId.perkHash)
-                    // if(debug > 0 ) {  console.log("Socket",socketHash) }
                     let perk = await getItemDefinition(socket.plugHash)
-                    if(debug > 0 ) { debug = debug-1; console.log("Perk",perk) }
-                    // if(perk.isDisplayable) { 
-                    if(perk && perk.displayProperties) { 
-                        // console.log("Perkdef:",perk)
+                    if(perk && perk.displayProperties && !ignorableTypes.includes(perk.itemTypeDisplayName)) { 
                         let perkName = perk.displayProperties.name
+
                         // Setup grid space for this perk and weapontype combo
                         if(!this.perkGrid[perkName]) { this.$set(this.perkGrid,perkName,{ details: perk, total: 0 }) }
                         if(!this.perkGrid[perkName][weapon.itemTypeDisplayName]) { 
@@ -149,9 +149,6 @@ export default {
                                 total: { pvp: 0, pve: 0, god: 0, junk: 0 } 
                             }) 
                         }
-                        // Is it locked ?
-                        
-                        // console.debug(perk)
 
                         let perkGraphSlot = this.perkGrid[perkName][weapon.itemTypeDisplayName]
                         let key = instance.state & 1 ? 'locked' : 'unlocked'
@@ -173,6 +170,7 @@ export default {
             }
         })
         this.status = "Done "
+        this.weapon_types = this.weapon_types.sort()
 
 
     },
@@ -201,6 +199,8 @@ export default {
         nodeValuable(graphNode) { 
             return graphNode.pve + graphNode.pvp + graphNode.god
         },
+        showTooltip(event) { if(event.target.getElementsByClassName('hover')) { event.target.getElementsByClassName('hover')[0].classList.remove('hidden'); }},
+        hideTooltip(event) { if(event.target.getElementsByClassName('hover')) { event.target.getElementsByClassName('hover')[0].classList.add('hidden'); }},
     }
 }
 </script>
@@ -217,6 +217,14 @@ export default {
     }
     tbody th { 
         text-align: left; 
+        display: flex;
+        position:relative;
+        img { max-width: 38px; max-height: 38px; margin-right: 1em; }
+        .hover { 
+            position:absolute; top:2em; left: 5em; width: 35em; z-index: 10000; padding: 1em;
+            background: rgba(255,255,255,0.9); border-radius: 0 15px 15px 15px;
+
+        }
     }
     thead th {
         position: -webkit-sticky;
@@ -260,7 +268,13 @@ export default {
             }
         }
     }
-    tbody th { padding: 0 10px; }
+    tbody th { 
+        padding: 0 10px; 
+        .additional {
+            font-size:0.7em;
+            display:block;
+        }
+    }
     tbody td { text-align:center; border-spacing:0; padding:0; }
     tbody td pre { text-align: left; max-width:100%; overflow: hidden; white-space: pre-wrap; }
     tbody>tr>* { border: 1px solid #ccc; }
@@ -270,21 +284,22 @@ export default {
         display:flex;
         flex-wrap: wrap;
         color: #fff;
+        font-weight:bold; 
         >span { 
             display: block; 
-            span { padding: 0 0.2em;}
-            .pve { color: var(--pve)}
-            .pvp { color: var(--pvp)}
-            .god { color: var(--god)}
-            .junk { color: var(--junk)}
+            span { padding: 0 0.1em;}
+            .pve { color: var(--pve);}
+            .pvp { color: var(--pvp);}
+            .god { color: var(--god);}
+            .junk { color: var(--junk);}
         }
-        .any { width: 100%; background: var(--dark-background); min-width: 3em;}
-        .locked, .unlocked { width: 50%; padding: 0 0.5em; }
+        .any { width: 100%; background: var(--dark-background); min-width: 2em; padding: 0.1em 0.2em; font-size: 1.1em; }
+        .locked, .unlocked { width: 50%; padding: 0; }
         .locked { background: var(--locked-background); }
-        .locked.empty { background: var(--locked-empty); }
+        .locked.empty { background: var(--locked-empty); font-weight: normal; }
         .unlocked { background: var(--unlocked-background); }
-        .unlocked.empty { background: var(--unlocked-empty);}
-        .unlocked.total { background: var(--unlocked-total);}
+        .unlocked.empty { background: var(--unlocked-empty); font-weight: normal; }
+        .unlocked.total { background: var(--unlocked-total); font-weight: normal; }
     }
 }
 </style>
