@@ -1,0 +1,111 @@
+[debug] [2021-01-31T20:07:56.167Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:07:56.169Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only database
+[debug] [2021-01-31T20:07:56.169Z] CLI Version:   8.7.0
+[debug] [2021-01-31T20:07:56.169Z] Platform:      darwin
+[debug] [2021-01-31T20:07:56.169Z] Node Version:  v14.4.0
+[debug] [2021-01-31T20:07:56.170Z] Time:          Sun Jan 31 2021 20:07:56 GMT+0000 (Greenwich Mean Time)
+[debug] [2021-01-31T20:07:56.170Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:07:56.170Z] 
+[debug] [2021-01-31T20:07:56.176Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-01-31T20:07:56.176Z] > authorizing via signed-in user
+[debug] [2021-01-31T20:07:56.177Z] [iam] checking project destiny-perk-coverage for permissions ["firebase.projects.get","firebasedatabase.instances.update"]
+[debug] [2021-01-31T20:07:56.179Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/destiny-perk-coverage:testIamPermissions  
+ {"permissions":["firebase.projects.get","firebasedatabase.instances.update"]}
+[debug] [2021-01-31T20:07:56.906Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:07:56 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=585","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-01-31T20:07:56.908Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/destiny-perk-coverage  
+ 
+[debug] [2021-01-31T20:07:57.110Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:07:57 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'destiny-perk-coverage'...
+[info] 
+[info] i  deploying database 
+[info] i  database: checking rules syntax... 
+[debug] [2021-01-31T20:07:57.116Z] >>> HTTP REQUEST PUT https://destiny-perk-coverage-default-rtdb.firebaseio.com/.settings/rules.json?dryRun=true  
+ {
+  "rules": {
+    ".read": "now < 1612915200000",  // 2021-2-10
+    ".write": "now < 1612915200000",  // 2021-2-10
+  }
+}
+[debug] [2021-01-31T20:07:57.467Z] <<< HTTP RESPONSE 404 {"server":"nginx","date":"Sun, 31 Jan 2021 20:07:57 GMT","content-type":"application/json; charset=utf-8","content-length":"301","connection":"keep-alive","access-control-allow-origin":"*","cache-control":"no-cache","strict-transport-security":"max-age=31556926; includeSubDomains; preload"}
+[debug] [2021-01-31T20:07:57.468Z] <<< HTTP RESPONSE BODY {
+  "correctUrl" : "https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app",
+  "error" : "Namespace destiny-perk-coverage-default-rtdb lives in a different region. Please change your database URL to https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app"
+}
+
+[error] 
+[error] Error: Unexpected error while deploying database rules.
+[debug] [2021-01-31T20:08:46.638Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:08:46.640Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only database --debug
+[debug] [2021-01-31T20:08:46.640Z] CLI Version:   8.7.0
+[debug] [2021-01-31T20:08:46.640Z] Platform:      darwin
+[debug] [2021-01-31T20:08:46.640Z] Node Version:  v14.4.0
+[debug] [2021-01-31T20:08:46.641Z] Time:          Sun Jan 31 2021 20:08:46 GMT+0000 (Greenwich Mean Time)
+[debug] [2021-01-31T20:08:46.641Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:08:46.641Z] 
+[debug] [2021-01-31T20:08:46.651Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-01-31T20:08:46.652Z] > authorizing via signed-in user
+[debug] [2021-01-31T20:08:46.652Z] [iam] checking project destiny-perk-coverage for permissions ["firebase.projects.get","firebasedatabase.instances.update"]
+[debug] [2021-01-31T20:08:46.655Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/destiny-perk-coverage:testIamPermissions  
+ {"permissions":["firebase.projects.get","firebasedatabase.instances.update"]}
+[debug] [2021-01-31T20:08:47.286Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:08:47 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=546","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-01-31T20:08:47.288Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/destiny-perk-coverage  
+ 
+[debug] [2021-01-31T20:08:47.483Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:08:47 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'destiny-perk-coverage'...
+[info] 
+[info] i  deploying database 
+[info] i  database: checking rules syntax... 
+[debug] [2021-01-31T20:08:47.489Z] >>> HTTP REQUEST PUT https://destiny-perk-coverage-default-rtdb.firebaseio.com/.settings/rules.json?dryRun=true  
+ {
+  "rules": {
+    ".read": "now < 1612915200000",  // 2021-2-10
+    ".write": "now < 1612915200000",  // 2021-2-10
+  }
+}
+[debug] [2021-01-31T20:08:47.888Z] <<< HTTP RESPONSE 404 {"server":"nginx","date":"Sun, 31 Jan 2021 20:08:47 GMT","content-type":"application/json; charset=utf-8","content-length":"301","connection":"keep-alive","access-control-allow-origin":"*","cache-control":"no-cache","strict-transport-security":"max-age=31556926; includeSubDomains; preload"}
+[debug] [2021-01-31T20:08:47.889Z] <<< HTTP RESPONSE BODY {
+  "correctUrl" : "https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app",
+  "error" : "Namespace destiny-perk-coverage-default-rtdb lives in a different region. Please change your database URL to https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app"
+}
+
+[error] 
+[error] Error: Unexpected error while deploying database rules.
+[debug] [2021-01-31T20:10:35.459Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:10:35.461Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only database --debug
+[debug] [2021-01-31T20:10:35.461Z] CLI Version:   8.7.0
+[debug] [2021-01-31T20:10:35.461Z] Platform:      darwin
+[debug] [2021-01-31T20:10:35.461Z] Node Version:  v14.4.0
+[debug] [2021-01-31T20:10:35.462Z] Time:          Sun Jan 31 2021 20:10:35 GMT+0000 (Greenwich Mean Time)
+[debug] [2021-01-31T20:10:35.462Z] ----------------------------------------------------------------------
+[debug] [2021-01-31T20:10:35.462Z] 
+[debug] [2021-01-31T20:10:35.470Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-01-31T20:10:35.471Z] > authorizing via signed-in user
+[debug] [2021-01-31T20:10:35.471Z] [iam] checking project destiny-perk-coverage for permissions ["firebase.projects.get","firebasedatabase.instances.update"]
+[debug] [2021-01-31T20:10:35.473Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/destiny-perk-coverage:testIamPermissions  
+ {"permissions":["firebase.projects.get","firebasedatabase.instances.update"]}
+[debug] [2021-01-31T20:10:36.136Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:10:36 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=544","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-01-31T20:10:36.138Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/destiny-perk-coverage  
+ 
+[debug] [2021-01-31T20:10:36.313Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 31 Jan 2021 20:10:36 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'destiny-perk-coverage'...
+[info] 
+[info] i  deploying database 
+[info] i  database: checking rules syntax... 
+[debug] [2021-01-31T20:10:36.318Z] >>> HTTP REQUEST PUT https://destiny-perk-coverage-default-rtdb.firebaseio.com/.settings/rules.json?dryRun=true  
+ {
+  "rules": {
+    ".read": "now < 1612915200000",  // 2021-2-10
+    ".write": "now < 1612915200000",  // 2021-2-10
+  }
+}
+[debug] [2021-01-31T20:10:36.668Z] <<< HTTP RESPONSE 404 {"server":"nginx","date":"Sun, 31 Jan 2021 20:10:36 GMT","content-type":"application/json; charset=utf-8","content-length":"301","connection":"keep-alive","access-control-allow-origin":"*","cache-control":"no-cache","strict-transport-security":"max-age=31556926; includeSubDomains; preload"}
+[debug] [2021-01-31T20:10:36.668Z] <<< HTTP RESPONSE BODY {
+  "correctUrl" : "https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app",
+  "error" : "Namespace destiny-perk-coverage-default-rtdb lives in a different region. Please change your database URL to https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app"
+}
+
+[error] 
+[error] Error: Unexpected error while deploying database rules.

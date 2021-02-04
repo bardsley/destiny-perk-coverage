@@ -16,6 +16,7 @@
     ]
   },
   "database": {
-    "rules": "database.rules.json"
+    "rules": "database.rules.json",
+    "databaseURL": "https://destiny-perk-coverage-default-rtdb.europe-west1.firebasedatabase.app"
   }
 }

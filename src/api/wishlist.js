@@ -9,33 +9,55 @@ const downloadWishlist = async () => {
         let [field,notes] = row.split('#')
         let [fieldName,fieldData] = field.split(':')
         return { field: {name: fieldName, data: fieldData }, notes: notes }
+    })
+
+    return rows
+}
+
+const processWishlist = (wishlist) => {
+
+    let currentMode = 'none'
+
+    let processed = wishlist.filter((row) => { // Remove everything that doesn't give perk info or PVP/PVE switch
+        return row.field && row.field.data
+    }).map((row,index) => { // Add PvP vs PvE info
+        let pve = new RegExp(/pve/i)
+        let pvp = new RegExp(/pvp/i)
+        if(row.field.data.search(pve) >= 0) { currentMode = 'pve' } 
+        if(row.field.data.search(pvp) >= 0) { currentMode = 'pvp' } 
+        let returnObject = Object.assign({ index: index, mode: currentMode } , row )
+        return returnObject 
     }).filter(( item ) => { // Only want the wishlist goodies
-        return item.field.name == 'dimwishlist' 
-    }).map((wish) => {
+        return item.field.name == 'dimwishlist'
+    }).map((wish) => { // split the info
         let [ itemString, perkString ] = wish.field.data.split('&')
         let itemhash = itemString.split('=')[1]
         let perks = perkString.split('=')[1].split(',')
-        return { item: itemhash, perks: perks }
+        return { item: itemhash, perks: perks,  mode: wish.mode } 
     })
 
     let rolls = {}
+    
+    processed.forEach(wish => { // Store PvP and PvE
+        if( !Object.keys(rolls).includes(wish.item) ) { rolls[wish.item] = { // make sure we have somewhere to store it 
+            pvp: [[],[],[],[]] , pve: [[],[],[],[]] , god: [[],[],[],[]] } 
+        } 
+        wish.perks.forEach((perkHash,index) => {
+            if(!rolls[wish.item][wish.mode][index].includes(perkHash)) { rolls[wish.item][wish.mode][index].push(perkHash) }
+        })
+    })
+
+    Object.keys(rolls).forEach(itemHash => { // Prep god rolls and remove from pvep/pvp
+        rolls[itemHash].pvp.forEach((perkHash,index) => {
+            let item = rolls[itemHash]
+            item.god[index] = item.pvp[index].filter(x => item.pve[index].includes(x));
+            item.pvp[index] = item.pvp[index].filter(x => !item.god[index].includes(x))
+            item.pve[index] = item.pve[index].filter(x => !item.god[index].includes(x))
+        })
+    })
+  
     console.log(rolls)
-    rows.forEach(wish => {
-        // console.log("->", rolls)
-        if( !Object.keys(rolls).includes(wish.item) ) { rolls[wish.item] = [] }
-        rolls[wish.item].push(wish.perks)
-        //     console.debug("Add this roll", rolls[wish.item])
-        //      = 
-        // } else {
-        //     console.debug("New weapon",rolls[wish.item])
-        //     rolls[wish.item] = [wish.perks]
-        //     console.debug("New weapon",rolls[wish.item])
-
-        // }
-        
-    });
-
     return rolls
 }
 
-export { downloadWishlist }
+export { downloadWishlist , processWishlist }

@@ -1,7 +1,11 @@
 <template>
     <div class="debug">
+        <pre>
+            {{ wishes }}
+        </pre>
+
         <table>
-            <template v-for="(weapon,index) in debug">
+            <template v-for="(weapon,index) in wishes">
             <tr v-for="(roll,newIndex) in weapon.rolls" class="weapons" :key="`${index}-${newIndex}`">
                 <th>{{ weapon.name }}</th>
                 <td v-for="perkHash in roll" :key="`${weapon.name}-${perkHash}`">{{ perkHash }}</td>
@@ -14,32 +18,41 @@
 </template>
 
 <script>
-import { downloadWishlist } from "@/api/wishlist";
-import { getItemDefinition } from "@/api/manifest";
+import { downloadWishlist , processWishlist } from "@/api/wishlist";
+// import { getItemDefinition } from "@/api/manifest";
 
 export default {
     props: ['membershipType','membershipId','characterId'],
     data() {
         return {
-            debug: [],
-            bungie_url: 'https://www.bungie.net',
-            number_weapons: 0,
+            wishes: [],
+            rows: [],
         }
     },
     async created() {
-
+        // let currentMode = 'none'
         console.debug("Load the experiment")
-        let wishes = await downloadWishlist()
-        console.log('Wishlist Size:', Object.keys(wishes).length)
-        console.log(wishes)
-        let keys = Object.keys(wishes)
-        keys.slice(0,5).forEach(async (key) => { 
-            let item = await getItemDefinition(key)
-            this.debug.push({name: item.displayProperties.name, rolls: wishes[key]})
-        })
-        // this.debug = wishes
-
-       
+        this.rows = await downloadWishlist()
+        this.wishes = processWishlist(this.rows)
+        // this.rows = this.rows.filter((row) => {
+        //     return row.field && row.field.data
+        // }).map((row,index) => { 
+        //     let pve = new RegExp(/pve/i)
+        //     let pvp = new RegExp(/pvp/i)
+        //     if(row.field.data.search(pve) >= 0) { console.log("pve mode switch @ ", index); currentMode = 'PVE' } 
+        //     if(row.field.data.search(pvp) >= 0) { console.log("pvp mode switch @ ", index); currentMode = 'PVP' } 
+        //     // console.log('--')
+        //     // let returnObject = Object.assign(Object.assign({ index: index, mode: currentMode } , row ) , { nextRow: this.rows[index+1]})
+        //     let returnObject = Object.assign({ index: index, mode: currentMode } , row )
+        //     return returnObject 
+        // }).filter( row => row.field.name == 'dimwishlist')
+        console.log('Wishlist Size:', Object.keys(this.wishes).length)
+        // let keys = Object.keys(this.wishes)
+        // keys.slice(0,5).forEach(async (key) => { 
+            
+        //     let item = await getItemDefinition(key)
+        //     this.debug.push({name: item.displayProperties.name, rolls: this.wishes[key]})
+        // })
     },
     methods: {
 
