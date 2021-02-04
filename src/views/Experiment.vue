@@ -25,34 +25,14 @@ export default {
     props: ['membershipType','membershipId','characterId'],
     data() {
         return {
-            wishes: [],
+            wishes: {},
             rows: [],
         }
     },
     async created() {
-        // let currentMode = 'none'
         console.debug("Load the experiment")
-        // this.rows = await downloadWishlist()
         this.wishes = await processWishlist()
-        // this.rows = this.rows.filter((row) => {
-        //     return row.field && row.field.data
-        // }).map((row,index) => { 
-        //     let pve = new RegExp(/pve/i)
-        //     let pvp = new RegExp(/pvp/i)
-        //     if(row.field.data.search(pve) >= 0) { console.log("pve mode switch @ ", index); currentMode = 'PVE' } 
-        //     if(row.field.data.search(pvp) >= 0) { console.log("pvp mode switch @ ", index); currentMode = 'PVP' } 
-        //     // console.log('--')
-        //     // let returnObject = Object.assign(Object.assign({ index: index, mode: currentMode } , row ) , { nextRow: this.rows[index+1]})
-        //     let returnObject = Object.assign({ index: index, mode: currentMode } , row )
-        //     return returnObject 
-        // }).filter( row => row.field.name == 'dimwishlist')
         console.log('Wishlist Size:', Object.keys(this.wishes).length)
-        // let keys = Object.keys(this.wishes)
-        // keys.slice(0,5).forEach(async (key) => { 
-            
-        //     let item = await getItemDefinition(key)
-        //     this.debug.push({name: item.displayProperties.name, rolls: this.wishes[key]})
-        // })
     },
     methods: {
 

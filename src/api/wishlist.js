@@ -10,7 +10,6 @@ const downloadWishlist = async () => {
         let [fieldName,fieldData] = field.split(':')
         return { field: {name: fieldName, data: fieldData }, notes: notes }
     })
-
     return rows
 }
 
@@ -50,16 +49,24 @@ const consolidateRollsOnWishlist = (wishlist) => {
         })
     })
 
-    Object.keys(rolls).forEach(itemHash => { // Prep god rolls and remove from pvep/pvp
+    Object.keys(rolls).forEach(itemHash => { // Prep god rolls and remove from pvp/pvp
+        let item = rolls[itemHash]
         rolls[itemHash].pvp.forEach((perkHash,index) => {
-            let item = rolls[itemHash]
             item.god[index] = item.pvp[index].filter(x => item.pve[index].includes(x));
             item.pvp[index] = item.pvp[index].filter(x => !item.god[index].includes(x))
             item.pve[index] = item.pve[index].filter(x => !item.god[index].includes(x))
         })
     })
-  
-    console.log(rolls)
+    
+    Object.keys(rolls).forEach(itemHash => { // Add useful All to each item
+        let item = rolls[itemHash]
+        item.flattened = { 
+            pve: item.pve.flat(),
+            pvp: item.pvp.flat(), 
+            god: item.god.flat()
+        }
+    })
+
     return rolls
 }
 

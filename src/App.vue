@@ -71,6 +71,11 @@ export default {
   --unlocked-background:  rgba(241, 145, 0, 0.3);
   --unlocked-total: rgba(161, 56, 56, 0.8);
   --unlocked-empty: rgba(161, 56, 56, 0.1);
+  --pve: rgb(65, 80, 161);
+  --pvp: rgb(151, 12, 12);
+  --god: rgb(255, 208, 0);
+  --junk: rgb(131, 120, 120);
+  
 }
 body { background: var(--background); padding: 3rem 0 0rem 0;}
 #app {

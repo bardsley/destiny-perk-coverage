@@ -3,6 +3,7 @@
         <h1>Your perk graph</h1>
         <p><span id="status">{{status}}</span> Weapons {{ weapons.length }}, Sockets {{ Object.keys(sockets).length }}</p>
         
+
         <table>
             
             <thead>
@@ -20,16 +21,10 @@
                         <th @click="toggleDetails(`perk-details-${index}`)">{{ perkName }}</th>
                         <td v-for="weapon_type in weapon_types" :key="perkName+'_'+weapon_type">
                             <div v-if="perkDetails[weapon_type]" class="totals">
-                                <span class="any">
-                                    <span class="pve">{{perkDetails[weapon_type].total.pve}}</span>
-                                    <span class="pvp">{{perkDetails[weapon_type].total.pvp}}</span>
-                                    <span class="god">{{perkDetails[weapon_type].total.god}}</span>
-                                    <span class="junk">{{perkDetails[weapon_type].total.junk}}</span>
-                                </span>
-                                <span :class="nodeValuable(perkDetails[weapon_type].locked) > 0 ? ['locked'] : ['locked','empty'] ">
-                                    {{ nodeTotal(perkDetails[weapon_type].locked) }}</span>
-                                <span :class="['unlocked'] + ( nodeTotal(perkDetails[weapon_type].unlocked) == nodeTotal(perkDetails[weapon_type].total) ? [' '] : [' empty']) + ( nodeValuable(perkDetails[weapon_type].unlocked) > 0  ? [' total'] : [''] )">
-                                    {{ nodeTotal(perkDetails[weapon_type].unlocked) }}
+                                <span class="any">{{ perkDetails[weapon_type].total }} </span>
+                                <span :class="perkDetails[weapon_type].locked > 0 ? ['locked'] : ['locked','empty'] ">{{ perkDetails[weapon_type].locked }}</span>
+                                <span :class="['unlocked'] + ( perkDetails[weapon_type].unlocked == 0 ? [' empty'] : [' ']) + ( perkDetails[weapon_type].unlocked == perkDetails[weapon_type].total ? [' total'] : [''] )">
+                                    {{ perkDetails[weapon_type].unlocked }}
                                 </span>
 
                             </div>
@@ -50,9 +45,8 @@
 
 <script>
 
-import { setUpCategories , setupPlugsets , getItemDefinition , /* getPerkDefinition */ } from "@/api/manifest";
+import { setUpCategories , setupPlugsets , getItemDefinition , getPerkDefinition } from "@/api/manifest";
 import { getCharacters, getCharacterItems , getVault } from "@/api/getCharacters";
-import { processWishlist } from "@/api/wishlist";
 
 export default {
     props: ['membershipType','membershipId',],
@@ -63,7 +57,6 @@ export default {
             characters: {},
             sockets:{},
             perks: {},
-            wishes: {},
             perkGrid: {},
             weapons: [],
             weapon_types: [],
@@ -71,13 +64,10 @@ export default {
         }
     },
     async created() {
-        let debug = 3
         this.status = "Loading Categories"
         this.categories = await setUpCategories()
         this.status = "Loading Plugsets"
         this.plugsets = await setupPlugsets()
-        this.status = "Loading Wishlist"
-        this.wishes = await processWishlist()
         this.status = "Downloading your character(s)"
         this.characters = await getCharacters(this.membershipType,this.membershipId)
         let characterIds = Object.keys(this.characters)
@@ -90,8 +80,6 @@ export default {
             let characterEquipment = []
             Object.assign(characterEquipment,characterItems.equipment)
             Object.assign(characterEquipment,characterItems.inventory)
-            Object.assign(this.sockets,characterItems.sockets)
-
             let downloadedEquipment = await this.addItemDefinitions(characterEquipment)
             let weapons = this.filterWeapons(downloadedEquipment)
             console.log("Adding ",weapons.length, " weapons")
@@ -120,53 +108,25 @@ export default {
 
         this.weapons.forEach(async (instance) => {
             let weapon = instance.item
-            // let weaponName = weapon.displayProperties.name
-            // console.log(`Weapon: ${weapon.displayProperties.name}`)
             let category = weapon.itemTypeDisplayName ? weapon.itemTypeDisplayName : false
             if(category) {
                 if(!this.weapon_types.includes(category)) { this.weapon_types.push(category) }
 
-                // let perks = this.perks[instance.itemInstanceId].perks
-
-                let sockets = this.sockets[instance.itemInstanceId].sockets
-                // if(debug > 0 ) { debug = debug - 1; console.error("Perks: ",perks); console.debug("Sockets: ",sockets); }
-
-                await sockets.forEach(async (socket) => {
-                    // let perk = await getPerkDefinition(perkId.perkHash)
-                    // if(debug > 0 ) {  console.log("Socket",socketHash) }
-                    let perk = await getItemDefinition(socket.plugHash)
-                    if(debug > 0 ) { debug = debug-1; console.log("Perk",perk) }
-                    // if(perk.isDisplayable) { 
-                    if(perk && perk.displayProperties) { 
+                let perks = this.perks[instance.itemInstanceId].perks
+                await perks.forEach(async (perkId) => {
+                    let perk = await getPerkDefinition(perkId.perkHash)
+                    if(perk.isDisplayable) { 
                         // console.log("Perkdef:",perk)
                         let perkName = perk.displayProperties.name
                         // Setup grid space for this perk and weapontype combo
                         if(!this.perkGrid[perkName]) { this.$set(this.perkGrid,perkName,{ details: perk, total: 0 }) }
                         if(!this.perkGrid[perkName][weapon.itemTypeDisplayName]) { 
-                            this.$set(this.perkGrid[perkName],category, { 
-                                locked: { pvp: 0, pve: 0, god: 0, junk: 0 }  , 
-                                unlocked: { pvp: 0, pve: 0, god: 0, junk: 0 }  , 
-                                total: { pvp: 0, pve: 0, god: 0, junk: 0 } 
-                            }) 
+                            this.$set(this.perkGrid[perkName],weapon.itemTypeDisplayName,{ locked: 0 , unlocked: 0 , total: 0 }) 
                         }
                         // Is it locked ?
-                        
-                        // console.debug(perk)
-
-                        let perkGraphSlot = this.perkGrid[perkName][weapon.itemTypeDisplayName]
                         let key = instance.state & 1 ? 'locked' : 'unlocked'
-                        let rollType = 'n/a'
-                        let weaponPerks = this.wishes[weapon.hash] 
-                        if(!weaponPerks) { rollType = 'junk'}
-                        else { 
-                            let perkHash = perk.hash.toString()
-                            if(weaponPerks.flattened.pvp.includes(perkHash)) { rollType = 'pvp' }
-                            if(weaponPerks.flattened.pve.includes(perkHash)) { rollType = 'pve' }
-                            if(weaponPerks.flattened.god.includes(perkHash)) { rollType = 'god' }
-                            if(rollType == 'n/a') { rollType = 'junk' }
-                        } 
-                        perkGraphSlot[key][rollType] = perkGraphSlot[key][rollType] + 1
-                        perkGraphSlot['total'][rollType] = perkGraphSlot['total'][rollType] + 1
+                        this.perkGrid[perkName][weapon.itemTypeDisplayName][key] = this.perkGrid[perkName][weapon.itemTypeDisplayName][key] + 1
+                        this.perkGrid[perkName][weapon.itemTypeDisplayName]['total'] = this.perkGrid[perkName][weapon.itemTypeDisplayName]['total'] + 1
                         this.perkGrid[perkName].total += 1
                     }
                 })
@@ -195,12 +155,39 @@ export default {
             let htmlNode = document.getElementById(htmlId)
             if(htmlNode.classList.contains('hidden')) { htmlNode.classList.remove('hidden') } else { htmlNode.classList.add('hidden') }
         },
-        nodeTotal(graphNode) { 
-            return graphNode.pve + graphNode.pvp + graphNode.god + graphNode.junk
-        },
-        nodeValuable(graphNode) { 
-            return graphNode.pve + graphNode.pvp + graphNode.god
-        },
+        getWeaponSockets(sockets) {
+            console.log("Not processing",sockets)
+            // const weaponPerkSocketCategory = 4241085061  // socketCategories socketEntries
+            // let socketIndexes = sockets.socketCategories.filter((cat) => { return cat.socketCategoryHash == weaponPerkSocketCategory })[0].socketIndexes
+            // sockets = socketIndexes.map((index) => {
+            //     // let plugItemhash = sockets.socketEntries[index].reusablePlugItems ? sockets.socketEntries[index].reusablePlugItems[0].plugItemHash : 0
+            //     // return plugItemhash 
+
+            //     let plugset = this.plugsets[sockets.socketEntries[index].randomizedPlugSetHash]
+            //     // plugset ? plugset.reusablePlugItems : []
+            //     let names = null
+            //     if(plugset) {
+            //         console.log('Plugset:',plugset.reusablePlugItems)
+            //         names = plugset.reusablePlugItems.map((plugItem) => {
+            //             console.log('PlugItem:',plugItem.plugItemHash)
+            //             if(plugItem.plugItemHash) {
+            //                 console.log("Exists:", plugItem.plugItemHash)
+            //                 let perkName = ""
+            //                 getItemDefinition(plugItem.plugItemHash).then((response) => {
+            //                     perkName = response.displayProperties.name
+            //                     console.log("perkNamne", perkName)
+            //                 })
+
+            //             }
+            //         })
+            //     }
+            //     return names 
+            //     // return plugset ? plugset.reusablePlugItems : false
+            // })
+            // console.log("Sockets before filter",sockets)
+            // sockets = sockets.filter((item) => { return item } ) //.map((item) => {return item.plugItemHash} )
+            // return sockets
+        }
     }
 }
 </script>
@@ -270,14 +257,7 @@ export default {
         display:flex;
         flex-wrap: wrap;
         color: #fff;
-        >span { 
-            display: block; 
-            span { padding: 0 0.2em;}
-            .pve { color: var(--pve)}
-            .pvp { color: var(--pvp)}
-            .god { color: var(--god)}
-            .junk { color: var(--junk)}
-        }
+        span { display: block; }
         .any { width: 100%; background: var(--dark-background); min-width: 3em;}
         .locked, .unlocked { width: 50%; padding: 0 0.5em; }
         .locked { background: var(--locked-background); }
