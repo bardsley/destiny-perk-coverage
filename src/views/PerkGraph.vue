@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                <template v-for="(perk,index) in Object.keys(perkGrid).sort().map((key) => { return Object.assign(perkGrid[key],{ key: key}) })">
+                <template v-for="(perk,index) in orderedPerkKeys">
                     <tr :key="perk.key">
                         <th @click="toggleDetails(`perk-details-${index}`)" >
                             <div>
@@ -77,6 +77,17 @@ export default {
             weapons: [],
             weapon_types: [],
             status: ''
+        }
+    },
+    computed: {
+        orderedPerkKeys() {
+            return Object.keys(this.perkGrid).
+                sort((a,b) => { 
+                    if (this.perkGrid[a].details.itemTypeDisplayName > this.perkGrid[b].details.itemTypeDisplayName) { return 1 }
+                    else if(this.perkGrid[a].details.itemTypeDisplayName < this.perkGrid[b].details.itemTypeDisplayName) { return -1 }
+                    else { return 0 }
+                }).
+                map((key) => { return Object.assign(this.perkGrid[key],{ key: key}) })
         }
     },
     async created() {
@@ -242,7 +253,7 @@ export default {
             text-align: left; 
             display: flex;
             position:relative;
-            img { max-width: 38px; max-height: 38px; margin-right: 0.2em; }
+            img { max-width: 38px; max-height: 38px; margin-right: em; }
             .hover { 
                 position:absolute; top:2em; left: 5em; width: 35em; z-index: 10000; padding: 1em;
                 background: rgba(255,255,255,0.9); border-radius: 0 15px 15px 15px;
