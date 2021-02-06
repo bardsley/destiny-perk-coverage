@@ -21,8 +21,8 @@
                             <div>
                                 <img v-if="perk.details.displayProperties.hasIcon" :src="`https://www.bungie.net${perk.details.displayProperties.icon}`" alt="" @mouseover="showTooltip" @mouseleave="hideTooltip">
                                 <div>
-                                    {{ perk.key }} 
                                     <span class="additional">{{ perk.details.itemTypeDisplayName }}</span>
+                                    {{ perk.key }} 
                                     <span class="hover hidden" v-html="perk.details.displayProperties.description.replaceAll('\n','<br/>')"></span>
                                 </div>
                             </div>
@@ -85,7 +85,10 @@ export default {
                 sort((a,b) => { 
                     if (this.perkGrid[a].details.itemTypeDisplayName > this.perkGrid[b].details.itemTypeDisplayName) { return 1 }
                     else if(this.perkGrid[a].details.itemTypeDisplayName < this.perkGrid[b].details.itemTypeDisplayName) { return -1 }
-                    else { return 0 }
+                    else { 
+                        if(a == b) { return 0 } else if (a > b) { return 1 } else { return -1 }
+                         
+                    }
                 }).
                 map((key) => { return Object.assign(this.perkGrid[key],{ key: key}) })
         }
