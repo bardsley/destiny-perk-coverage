@@ -1,41 +1,52 @@
 <template>
     <div class="debug">
+        6917529212086378442
         <pre>
-            {{ wishes }}
-        </pre>
-
-        <table>
-            <template v-for="(weapon,index) in wishes">
-            <tr v-for="(roll,newIndex) in weapon.rolls" class="weapons" :key="`${index}-${newIndex}`">
-                <th>{{ weapon.name }}</th>
-                <td v-for="perkHash in roll" :key="`${weapon.name}-${perkHash}`">{{ perkHash }}</td>
-            </tr>    
-            </template>
-        </table>
-             
-        <!-- <pre>{{ debug}}</pre> -->
+        {{ instances.length }}
+        {{ 
+            instances.
+            filter((i) => { return !i.item.traitIds || i.item.traitIds.includes("item_type.weapon") }).
+            map(( i ) => { return { name: i.item.displayProperties.name, type: i.item.traitIds, itemhash: i.item.hash } } ) 
+        }}
+        {{ instances }}
+       </pre>
     </div>
 </template>
 
 <script>
-import { processWishlist } from "@/api/wishlist";
-// import { getItemDefinition } from "@/api/manifest";
+/* eslint-disable no-unused-vars */
+import { getVault , getCharacterItems} from "@/api/getCharacters";
+import { getItemDefinition } from "@/api/manifest";
+
 
 export default {
     props: ['membershipType','membershipId','characterId'],
     data() {
         return {
-            wishes: {},
+            instances: [],
             rows: [],
         }
     },
     async created() {
-        console.debug("Load the experiment")
-        this.wishes = await processWishlist()
-        console.log('Wishlist Size:', Object.keys(this.wishes).length)
+        // let rawInstances = await getVault(this.membershipType,this.membershipId ) 
+        let rawInstances = await getCharacterItems(this.membershipType,this.membershipId,this.characterId)
+        let characterInstances = []
+        characterInstances = characterInstances.concat(rawInstances.equipment)
+        characterInstances = characterInstances.concat(rawInstances.inventory)
+        let detailedInstances = await this.addItemDefinitions(characterInstances)
+        this.instances = detailedInstances
     },
     methods: {
-
+        async addItemDefinitions(instances) {
+            console.log('Adding defs to ',instances.length)
+            return await Promise.all(
+                instances.map(async (instance) => {
+                    let itemDef = await getItemDefinition(instance.itemHash)
+                    Object.assign(instance, { item:itemDef })
+                    return instance
+                })
+            )
+        },
     }
 }
 </script>

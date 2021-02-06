@@ -3,7 +3,7 @@ import { tokenExpired, refreshToken } from './refreshToken'
 import { Mutex, Semaphore } from 'async-mutex';
 
 const itemInstanceCacheMutex = new Mutex();
-const limitRequests = new Semaphore(50);
+const limitRequests = new Semaphore(100);
 
 
 

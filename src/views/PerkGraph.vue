@@ -17,13 +17,14 @@
             <tbody>
                 <template v-for="(perk,index) in Object.keys(perkGrid).sort().map((key) => { return Object.assign(perkGrid[key],{ key: key}) })">
                     <tr :key="perk.key">
-                        <th @click="toggleDetails(`perk-details-${index}`)" 
-                            @mouseover="showTooltip" @mouseleave="hideTooltip">
-                            <img v-if="perk.details.displayProperties.hasIcon" :src="`https://www.bungie.net${perk.details.displayProperties.icon}`" alt="">
+                        <th @click="toggleDetails(`perk-details-${index}`)" >
                             <div>
-                                {{ perk.key }} 
-                                <span class="additional">{{ perk.details.itemTypeDisplayName }}</span>
-                                <span class="hover hidden" v-html="perk.details.displayProperties.description.replaceAll('\n','<br/>')"></span>
+                                <img v-if="perk.details.displayProperties.hasIcon" :src="`https://www.bungie.net${perk.details.displayProperties.icon}`" alt="" @mouseover="showTooltip" @mouseleave="hideTooltip">
+                                <div>
+                                    {{ perk.key }} 
+                                    <span class="additional">{{ perk.details.itemTypeDisplayName }}</span>
+                                    <span class="hover hidden" v-html="perk.details.displayProperties.description.replaceAll('\n','<br/>')"></span>
+                                </div>
                             </div>
                         </th>
                         <td v-for="weapon_type in weapon_types" :key="perk.key+'_'+weapon_type">
@@ -70,6 +71,7 @@ export default {
             characters: {},
             sockets:{},
             perks: {},
+            plugs: {},
             wishes: {},
             perkGrid: {},
             weapons: [],
@@ -92,12 +94,13 @@ export default {
         characterIds.forEach( async (characterId) => {
             let characterItems = await getCharacterItems(this.membershipType,this.membershipId,characterId)
             Object.assign(this.sockets,characterItems.sockets)
+            Object.assign(this.plugs,characterItems.plugs)
             Object.assign(this.perks,characterItems.perks)
 
             let characterEquipment = []
-            Object.assign(characterEquipment,characterItems.equipment)
-            Object.assign(characterEquipment,characterItems.inventory)
-            Object.assign(this.sockets,characterItems.sockets)
+            characterEquipment = characterEquipment.concat(characterItems.equipment)
+            characterEquipment = characterEquipment.concat(characterItems.inventory)
+            
 
             let downloadedEquipment = await this.addItemDefinitions(characterEquipment)
             let weapons = this.filterWeapons(downloadedEquipment)
@@ -109,6 +112,7 @@ export default {
         let vaultContents = await getVault(this.membershipType,this.membershipId )     
         Object.assign(this.sockets,vaultContents.sockets)
         Object.assign(this.perks,vaultContents.perks)
+        Object.assign(this.plugs,vaultContents.plugs)
 
         this.status = "Assessing combined stash"
         let downloadedEquipment = await this.addItemDefinitions(vaultContents.items)
@@ -117,6 +121,7 @@ export default {
         console.log("Adding ",weapons.length, " weapons")
         this.weapons = this.weapons.concat(weapons)
         
+        console.log("Weapon Instance keys ",this.weapons.map((row)=>{ return row.itemInstanceId }))
         // Add definitions to all perks?
         console.log("Perks size",Object.keys(this.perks).length)
         
@@ -124,8 +129,8 @@ export default {
 
         // perkName -> WeaponType -> { locked: X , unlocked: X }
         this.status = "Categorising all available perks"
-
-        this.weapons.forEach(async (instance) => {
+        await Promise.all(this.weapons.map(async (instance) => { 
+        // this.weapons.forEach(async (instance) => {
             let weapon = instance.item
             // let weaponName = weapon.displayProperties.name
             // console.log(`Weapon: ${weapon.displayProperties.name}`,weapon)
@@ -133,10 +138,24 @@ export default {
             if(category && weapon.summaryItemHash != 2673424576) { // only process non exotics
                 if(!this.weapon_types.includes(category)) { this.weapon_types.push(category) }
 
-                let sockets = this.sockets[instance.itemInstanceId].sockets
+                let weaponHighlight = 'Arctic Haze' 
+                if(instance.item.displayProperties.name == weaponHighlight) { 
+                    console.warn('I have found a ' + weaponHighlight + "("+instance.itemInstanceId+")")
+                    console.log(this.sockets[instance.itemInstanceId])
+                    console.log(this.plugs[instance.itemInstanceId])  
+                }
+                // let sockets = this.sockets[instance.itemInstanceId].sockets
+                let sockets = [] 
+                if(this.plugs[instance.itemInstanceId]) {
+                    sockets = Object.values(this.plugs[instance.itemInstanceId].plugs).flat()
+                } else { 
+                    console.log("No plugs for instID:", instance.itemInstanceId," a ", weapon.displayProperties.name)
+                }
                 
-                await sockets.forEach(async (socket) => {
-                    let perk = await getItemDefinition(socket.plugHash)
+                await Promise.all(sockets.map( async (socket) => {
+                // await sockets.forEach(async (socket) => {
+                    // let perk = await getItemDefinition(socket.plugHash) // TODO this just gets the current plugged item I think https://bungie-net.github.io/#/components/schemas/Destiny.DestinyComponentType
+                    let perk = await getItemDefinition(socket.plugItemHash) // TODO this just gets the current plugged item I think https://bungie-net.github.io/#/components/schemas/Destiny.DestinyComponentType
                     if(perk && perk.displayProperties && !ignorableTypes.includes(perk.itemTypeDisplayName)) { 
                         let perkName = perk.displayProperties.name
 
@@ -166,9 +185,11 @@ export default {
                         perkGraphSlot['total'][rollType] = perkGraphSlot['total'][rollType] + 1
                         this.perkGrid[perkName].total += 1
                     }
-                })
+                }))
+            } else {
+                console.debug("Ignoring ",weapon.displayProperties.name)
             }
-        })
+        }))
         this.status = "Done "
         this.weapon_types = this.weapon_types.sort()
 
@@ -216,14 +237,17 @@ export default {
         // overflow: hidden;
     }
     tbody th { 
-        text-align: left; 
-        display: flex;
-        position:relative;
-        img { max-width: 38px; max-height: 38px; margin-right: 1em; }
-        .hover { 
-            position:absolute; top:2em; left: 5em; width: 35em; z-index: 10000; padding: 1em;
-            background: rgba(255,255,255,0.9); border-radius: 0 15px 15px 15px;
+        max-width:10%;
+        >div {
+            text-align: left; 
+            display: flex;
+            position:relative;
+            img { max-width: 38px; max-height: 38px; margin-right: 0.2em; }
+            .hover { 
+                position:absolute; top:2em; left: 5em; width: 35em; z-index: 10000; padding: 1em;
+                background: rgba(255,255,255,0.9); border-radius: 0 15px 15px 15px;
 
+            }
         }
     }
     thead th {
