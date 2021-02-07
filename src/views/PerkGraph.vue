@@ -94,7 +94,9 @@ export default {
         }
     },
     async created() {
-        let ignorableTypes = ['Restore Defaults','Weapon Mod','Shader','','Intrinsic','Weapon Ornament']
+        // let ignorableTypes = ['Restore Defaults','Weapon Mod','Shader','','Intrinsic','Weapon Ornament']
+        // let showTypesOptions = ['Arrow', 'Barrel','Battery', 'Blade','Bowstring','Guard','Launcher Barrel','Magazine',"Scope","Sight","Trait"]
+        let showTypes = ["Trait"]
         this.status = "Loading Categories"
         this.categories = await setUpCategories()
         this.status = "Loading Plugsets"
@@ -170,7 +172,8 @@ export default {
                 // await sockets.forEach(async (socket) => {
                     // let perk = await getItemDefinition(socket.plugHash) // TODO this just gets the current plugged item I think https://bungie-net.github.io/#/components/schemas/Destiny.DestinyComponentType
                     let perk = await getItemDefinition(socket.plugItemHash) // TODO this just gets the current plugged item I think https://bungie-net.github.io/#/components/schemas/Destiny.DestinyComponentType
-                    if(perk && perk.displayProperties && !ignorableTypes.includes(perk.itemTypeDisplayName)) { 
+                    // if(perk && perk.displayProperties && !ignorableTypes.includes(perk.itemTypeDisplayName)) { 
+                    if(perk && perk.displayProperties && showTypes.includes(perk.itemTypeDisplayName)) { 
                         let perkName = perk.displayProperties.name
 
                         // Setup grid space for this perk and weapontype combo
